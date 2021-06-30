@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/malee31/prompt-set/issues"
   },
-  "homepage": "https://github.com/malee31/prompt-set#readme"
+  "homepage": "https://github.com/malee31/prompt-set#readme",
+  "dependencies": {
+    "inquirer": "^8.1.1"
+  }
 }
