@@ -5,6 +5,7 @@ Promptlet.inquirer = inquirer;
 class PromptSet {
 	static inquirer = inquirer;
 	static Promptlet = Promptlet;
+
 	constructor() {
 		this.set = {};
 		this.names = [];
@@ -21,8 +22,9 @@ class PromptSet {
 		this.set[set.name] = set.constructor.name === PromptSet.constructor.name ? set : new PromptSet(set);
 	}
 
+	// Warning: May break prompts that have the removed Promptlet as a prerequisite
 	remove(identifier) {
-		if (identifier.constructor.name === PromptSet.constructor.name) identifier = identifier.name;
+		if(identifier.constructor.name === PromptSet.constructor.name) identifier = identifier.name;
 		if(typeof identifier === "string") {
 			if(this.names.includes(identifier)) this.names.splice(this.names.indexOf(identifier), 1);
 			else console.log("Name not found in set");
