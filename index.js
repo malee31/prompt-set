@@ -6,14 +6,15 @@ class PromptSet {
 	static inquirer = inquirer;
 	static Promptlet = Promptlet;
 
+	static chain() {
+		return new PromptSet();
+	}
+
 	constructor() {
 		this.set = {};
 		this.names = [];
 		this.satisfied = false;
-	}
-
-	static chain() {
-		return new PromptSet();
+		this.autoclear = true;
 	}
 
 	add(set) {
@@ -35,9 +36,33 @@ class PromptSet {
 		} else console.log("Identifier/Name not found in set");
 	}
 
+	clear() {
+		if(this.autoclear) console.clear();
+	}
+
+	isSatisfied() {
+		for(const key of this.names) {
+			if(!this.set[key].satisfied) return false;
+		}
+		return true;
+	}
+
 	start() {
 		if(this.names.length === 0) return console.log("Empty PromptSet");
-		return inquirer({
+		return new Promise(async(resolve, reject) => {
+			while(!this.isSatisfied()) {
+				const chosenPromptlet = await this.selectPromptlet();
+				if(chosenPromptlet.satisfied) continue;
+
+				await chosenPromptlet.execute();
+				this.clear();
+			}
+			resolve(this);
+		});
+	}
+
+	async selectPromptlet() {
+		const chosenPrompt = await inquirer({
 			type: "list",
 			name: "PromptletSelected",
 			message: "Choose a prompt to answer",
@@ -48,7 +73,10 @@ class PromptSet {
 					value: val
 				};
 			})
-		})
+		});
+
+		this.clear();
+		return this.set[chosenPrompt["PromptletSelected"]];
 	}
 }
 

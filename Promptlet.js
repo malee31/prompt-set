@@ -9,6 +9,7 @@ class Promptlet {
 
 	constructor(optionName, info) {
 		if(typeof info.name !== "string") throw "Name Property Required (Type: string)";
+		this.satisfied = false;
 		this.info = Object.assign({}, Promptlet.default, info);
 		this.optionName = optionName;
 	}
@@ -21,9 +22,10 @@ class Promptlet {
 		return this.info.name;
 	}
 
-	execute() {
-		return Promptlet.inquirer(this.info);
+	async execute() {
+		await Promptlet.inquirer(this.info);
+		this.satisfied = true;
 	}
 }
 
-module.exports = Promptlet
+module.exports = Promptlet;
