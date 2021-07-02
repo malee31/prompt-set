@@ -7,9 +7,10 @@ class Promptlet {
 		message: "",
 	};
 
-	constructor(info) {
+	constructor(optionName, info) {
 		if(typeof info.name !== "string") throw "Name Property Required (Type: string)";
 		this.info = Object.assign({}, Promptlet.default, info);
+		this.optionName = optionName;
 	}
 
 	static chain() {
