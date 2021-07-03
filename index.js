@@ -4,7 +4,10 @@ Promptlet.inquirer = inquirer;
 
 class PromptSet {
 	static inquirer = inquirer;
-	static Promptlet = Promptlet;
+
+	static Promptlet(...args) {
+		return new Promptlet(...args);
+	}
 
 	static chain() {
 		return new PromptSet();
@@ -13,12 +16,13 @@ class PromptSet {
 	constructor() {
 		this.set = {};
 		this.names = [];
+		this.default = 0;
 		this.satisfied = false;
 		this.autoclear = true;
 	}
 
 	add(set) {
-		if(set.constructor.name !== PromptSet.Promptlet.name) throw "PromptSet.add() Only Accepts Promptlets";
+		if(set.constructor.name !== PromptSet.Promptlet.name) throw "PromptSet.add() only accepts 'Promptlet' instances";
 
 		if(!this.names.includes(set.name)) this.names.push(set.name);
 		else console.log("Overwriting a prompt with an identical name");
@@ -33,7 +37,7 @@ class PromptSet {
 		if(typeof identifier === "string") {
 			if(this.names.includes(identifier)) this.names.splice(this.names.indexOf(identifier), 1);
 			else console.log("Name not found in set");
-		} else console.log("Identifier/Name not found in set");
+		} else console.log("Identifier must be a 'string' or 'Promptlet' instance");
 	}
 
 	clear() {
@@ -44,12 +48,13 @@ class PromptSet {
 		for(const key of this.names) {
 			if(!this.set[key].satisfied) return false;
 		}
+
 		return true;
 	}
 
 	start() {
 		if(this.names.length === 0) return console.log("Empty PromptSet");
-		return new Promise(async(resolve, reject) => {
+		return new Promise(async resolve => {
 			while(!this.isSatisfied()) {
 				const chosenPromptlet = await this.selectPromptlet();
 				if(chosenPromptlet.satisfied) continue;
@@ -57,7 +62,7 @@ class PromptSet {
 				await chosenPromptlet.execute();
 				this.clear();
 			}
-			resolve(this);
+			resolve(this.reduce());
 		});
 	}
 
@@ -65,6 +70,7 @@ class PromptSet {
 		const chosenPrompt = await inquirer({
 			type: "list",
 			name: "PromptletSelected",
+			default: this.default,
 			message: "Choose a prompt to answer",
 			choices: this.names.map(val => {
 				const set = this.set[val];
@@ -74,10 +80,23 @@ class PromptSet {
 				};
 			})
 		});
+		this.default = chosenPrompt["PromptletSelected"];
 
 		this.clear();
-		return this.set[chosenPrompt["PromptletSelected"]];
+		return this.set[this.default];
+	}
+
+	reduce() {
+		return this.names.reduce((acc, val) => {
+			const selectedSet = this.set[val];
+			acc[selectedSet.name] = selectedSet.value;
+			return acc;
+		}, {});
+	}
+
+	toString() {
+		return JSON.stringify(this.reduce());
 	}
 }
 
-module.exports = PromptSet
+module.exports = PromptSet;

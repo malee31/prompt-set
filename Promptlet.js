@@ -10,6 +10,7 @@ class Promptlet {
 	constructor(optionName, info) {
 		if(typeof info.name !== "string") throw "Name Property Required (Type: string)";
 		this.satisfied = false;
+		this.value = "<Incomplete>";
 		this.info = Object.assign({}, Promptlet.default, info);
 		this.optionName = optionName;
 	}
@@ -23,7 +24,7 @@ class Promptlet {
 	}
 
 	async execute() {
-		await Promptlet.inquirer(this.info);
+		this.value = (await Promptlet.inquirer(this.info))[this.name];
 		this.satisfied = true;
 	}
 }
