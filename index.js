@@ -22,22 +22,36 @@ class PromptSet {
 	}
 
 	add(set) {
-		if(set.constructor.name !== PromptSet.Promptlet.name) throw "PromptSet.add() only accepts 'Promptlet' instances";
+		if(set.constructor.name !== Promptlet.name) throw "PromptSet.add() only accepts 'Promptlet' instances";
 
-		if(!this.names.includes(set.name)) this.names.push(set.name);
-		else console.log("Overwriting a prompt with an identical name");
+		if(this.names.includes(set.name)) {
+			console.warn("Overwriting a prompt with an identical name");
+			this.remove(set.name);
+		}
 
+		this.names.push(set.name);
 		this.set[set.name] = set;
 		return this;
 	}
 
 	// Warning: May break prompts that have the removed Promptlet as a prerequisite
 	remove(identifier) {
-		if(identifier.constructor.name === PromptSet.constructor.name) identifier = identifier.name;
-		if(typeof identifier === "string") {
-			if(this.names.includes(identifier)) this.names.splice(this.names.indexOf(identifier), 1);
-			else console.log("Name not found in set");
-		} else console.log("Identifier must be a 'string' or 'Promptlet' instance");
+		const removed = this.searchSet(identifier);
+		delete this.set[removed.name];
+		this.names.splice(this.names.indexOf(removed.name), 1);
+		return removed;
+	}
+
+	searchSet(identifier) {
+		if(identifier.constructor.name === Promptlet.name) identifier = identifier.name;
+		if(typeof identifier !== "string") throw new Error("Identifier must be a 'string' or 'Promptlet' instance");
+		if(this.set[identifier]) return this.set[identifier];
+		else throw new Error("Name not found in set");
+	}
+
+	addPrerequisite(addToIdentifier, prerequisiteIdentifier) {
+		// TODO: Implement function
+		
 	}
 
 	clear() {
