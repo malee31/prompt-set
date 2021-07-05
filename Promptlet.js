@@ -13,6 +13,7 @@ class Promptlet {
 		this.value = "<Incomplete>";
 		this.info = Object.assign({}, Promptlet.default, info);
 		this.optionName = optionName;
+		this.prerequisites = [];
 	}
 
 	static chain() {

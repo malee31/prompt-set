@@ -50,8 +50,17 @@ class PromptSet {
 	}
 
 	addPrerequisite(addToIdentifier, prerequisiteIdentifier) {
-		// TODO: Implement function
-		
+		const addTo = this.searchSet(addToIdentifier);
+		const addMe = this.searchSet(prerequisiteIdentifier);
+		addTo.prerequisites.push(addMe.name);
+		return this;
+	}
+
+	removePrerequisite(removeFromIdentifier, removeIdentifier) {
+		const removeFrom = this.searchSet(removeFromIdentifier);
+		const removeMe = this.searchSet(removeIdentifier);
+		removeFrom.prerequisites.push(removeMe.name);
+		return this;
 	}
 
 	clear() {
@@ -72,6 +81,16 @@ class PromptSet {
 			while(!this.isSatisfied()) {
 				const chosenPromptlet = await this.selectPromptlet();
 				if(chosenPromptlet.satisfied) continue;
+				let preSatisfied = true;
+				for(const prerequisite of chosenPromptlet.prerequisites) {
+					const pre = this.searchSet(prerequisite);
+					if(!pre.satisfied) {
+						preSatisfied = false;
+						console.log(`Prompt must be answered before this:\n${pre.optionName}`);
+						break;
+					}
+				}
+				if(!preSatisfied) continue;
 
 				await chosenPromptlet.execute();
 				this.clear();
