@@ -19,10 +19,11 @@ class PromptSet {
 		this.default = 0;
 		this.satisfied = false;
 		this.autoclear = true;
+		this.previous = undefined;
 	}
 
 	add(set) {
-		if(set.constructor.name !== Promptlet.name) throw "PromptSet.add() only accepts 'Promptlet' instances";
+		if(set.constructor.name !== "Promptlet") throw "PromptSet.add() only accepts 'Promptlet' instances";
 
 		if(this.names.includes(set.name)) {
 			console.warn("Overwriting a prompt with an identical name");
@@ -31,78 +32,106 @@ class PromptSet {
 
 		this.names.push(set.name);
 		this.set[set.name] = set;
+		this.refreshPrevious(set.name, false);
+
 		return this;
 	}
 
 	// Warning: May break prompts that have the removed Promptlet as a prerequisite
 	remove(identifier) {
 		const removed = this.searchSet(identifier);
+
 		delete this.set[removed.name];
 		this.names.splice(this.names.indexOf(removed.name), 1);
-		return removed;
+		if(this.previous === removed.name) this.previous = undefined;
+
+		return this;
+	}
+
+	addPrerequisite(prerequisiteIdentifier, addToIdentifier) {
+		const addMe = this.searchSet(prerequisiteIdentifier);
+		const addTo = this.searchSet(this.refreshPrevious(addToIdentifier));
+
+		if(!addTo.prerequisites.includes(addMe.name)) {
+			addTo.prerequisites.push(addMe.name);
+			addTo.prerequisites.sort();
+		}
+
+		return this;
+	}
+
+	removePrerequisite(removeIdentifier, removeFromIdentifier) {
+		const removeMe = this.searchSet(removeIdentifier);
+		const removeFrom = this.searchSet(this.refreshPrevious(removeFromIdentifier));
+
+		if(removeFrom.prerequisites.includes(removeMe.name)) removeFrom.prerequisites.slice(removeFrom.prerequisites.indexOf(removeMe.name));
+
+		return this;
 	}
 
 	searchSet(identifier) {
-		if(identifier.constructor.name === Promptlet.name) identifier = identifier.name;
+		if(identifier.constructor.name === "Promptlet") identifier = identifier.name;
+
 		if(typeof identifier !== "string") throw new Error("Identifier must be a 'string' or 'Promptlet' instance");
-		if(this.set[identifier]) return this.set[identifier];
-		else throw new Error("Name not found in set");
+		if(!this.set[identifier]) throw new Error("Name not found in set");
+
+		return this.set[identifier];
 	}
 
-	addPrerequisite(addToIdentifier, prerequisiteIdentifier) {
-		const addTo = this.searchSet(addToIdentifier);
-		const addMe = this.searchSet(prerequisiteIdentifier);
-		addTo.prerequisites.push(addMe.name);
-		return this;
+	refreshPrevious(newPrevious, throwOnInvalid = true) {
+		if(typeof newPrevious === "string") this.previous = newPrevious;
+
+		if(throwOnInvalid && typeof this.previous !== "string") throw new Error("No previous Promptlet name saved.\nNote: Previous is saved when a Promptlet is added or prerequisites are edited on the PromptSet and unsaved when the Promptlet is removed.");
+
+		return this.previous;
 	}
 
-	removePrerequisite(removeFromIdentifier, removeIdentifier) {
-		const removeFrom = this.searchSet(removeFromIdentifier);
-		const removeMe = this.searchSet(removeIdentifier);
-		removeFrom.prerequisites.push(removeMe.name);
-		return this;
-	}
+	preSatisfied(chosenPromptlet, silent = false) {
+		let preSatisfied = true;
 
-	clear() {
-		if(this.autoclear) console.clear();
+		for(const prerequisite of chosenPromptlet.prerequisites) {
+			const pre = this.searchSet(prerequisite);
+
+			if(!pre.satisfied) {
+				preSatisfied = false;
+
+				if(!silent) console.log(`Prompt must be answered before this:\n${pre.optionName}`);
+
+				break;
+			}
+		}
+
+		return preSatisfied;
 	}
 
 	isSatisfied() {
 		for(const key of this.names) {
 			if(!this.set[key].satisfied) return false;
 		}
-
 		return true;
-	}
-
-	preSatisfied(chosenPromptlet, silent = false) {
-		let preSatisfied = true;
-		for(const prerequisite of chosenPromptlet.prerequisites) {
-			const pre = this.searchSet(prerequisite);
-			if(!pre.satisfied) {
-				preSatisfied = false;
-				if(!silent) console.log(`Prompt must be answered before this:\n${pre.optionName}`);
-				break;
-			}
-		}
-		return preSatisfied;
 	}
 
 	start() {
 		if(this.names.length === 0) return console.log("Empty PromptSet");
+
 		return new Promise(async resolve => {
 			while(!this.isSatisfied()) {
 				const chosenPromptlet = await this.selectPromptlet();
+
 				if(chosenPromptlet.satisfied && !chosenPromptlet.editable) {
-					this.clear();
+					this.clearConsole();
 					console.log("Prompt Already Answered. (Editing this prompt is disabled)");
+
 					continue;
 				}
+
 				if(!this.preSatisfied(chosenPromptlet)) continue;
 
 				await chosenPromptlet.execute();
-				this.clear();
+
+				this.clearConsole();
 			}
+
 			resolve(this.reduce());
 		});
 	}
@@ -121,18 +150,26 @@ class PromptSet {
 				};
 			})
 		});
+
 		this.default = chosenPrompt["PromptletSelected"];
 
-		this.clear();
+		this.clearConsole();
+
 		return this.set[this.default];
 	}
 
 	reduce() {
 		return this.names.reduce((acc, val) => {
 			const selectedSet = this.set[val];
+
 			acc[selectedSet.name] = selectedSet.value;
+
 			return acc;
 		}, {});
+	}
+
+	clearConsole() {
+		if(this.autoclear) console.clear();
 	}
 
 	toString() {

@@ -10,7 +10,10 @@ const set = PromptSet.chain()
 	})).add(PromptSet.Promptlet("Third Option", {
 		name: "Opt 3",
 		message: "Prompted Thrice"
-	})).addPrerequisite("Opt 2", "Opt 3");
+	}))
+	.addPrerequisite("Opt 2")
+	.addPrerequisite("Opt 1")
+	.removePrerequisite("Opt 1");
 
 set.start().then(console.log).then(() => {
 	console.log(`PromptSet.toString(): ${set}`);
