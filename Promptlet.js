@@ -7,9 +7,10 @@ class Promptlet {
 		message: "",
 	};
 
-	constructor(optionName, info) {
+	constructor(optionName, info, editable) {
 		if(typeof info.name !== "string") throw "Name Property Required (Type: string)";
 		this.satisfied = false;
+		this.editable = Boolean(editable);
 		this.value = "<Incomplete>";
 		this.info = Object.assign({}, Promptlet.default, info);
 		this.optionName = optionName;

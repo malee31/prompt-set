@@ -75,22 +75,30 @@ class PromptSet {
 		return true;
 	}
 
+	preSatisfied(chosenPromptlet, silent = false) {
+		let preSatisfied = true;
+		for(const prerequisite of chosenPromptlet.prerequisites) {
+			const pre = this.searchSet(prerequisite);
+			if(!pre.satisfied) {
+				preSatisfied = false;
+				if(!silent) console.log(`Prompt must be answered before this:\n${pre.optionName}`);
+				break;
+			}
+		}
+		return preSatisfied;
+	}
+
 	start() {
 		if(this.names.length === 0) return console.log("Empty PromptSet");
 		return new Promise(async resolve => {
 			while(!this.isSatisfied()) {
 				const chosenPromptlet = await this.selectPromptlet();
-				if(chosenPromptlet.satisfied) continue;
-				let preSatisfied = true;
-				for(const prerequisite of chosenPromptlet.prerequisites) {
-					const pre = this.searchSet(prerequisite);
-					if(!pre.satisfied) {
-						preSatisfied = false;
-						console.log(`Prompt must be answered before this:\n${pre.optionName}`);
-						break;
-					}
+				if(chosenPromptlet.satisfied && !chosenPromptlet.editable) {
+					this.clear();
+					console.log("Prompt Already Answered. (Editing this prompt is disabled)");
+					continue;
 				}
-				if(!preSatisfied) continue;
+				if(!this.preSatisfied(chosenPromptlet)) continue;
 
 				await chosenPromptlet.execute();
 				this.clear();
@@ -108,7 +116,7 @@ class PromptSet {
 			choices: this.names.map(val => {
 				const set = this.set[val];
 				return {
-					name: `${set.satisfied ? "✔ " : ""}${this.set[val].optionName}`,
+					name: `${set.satisfied ? "✔ " : this.preSatisfied(set, true) ? "○ " : "⛝ "}${this.set[val].optionName}`,
 					value: val
 				};
 			})
