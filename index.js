@@ -22,6 +22,20 @@ class PromptSet {
 		this.previous = undefined;
 	}
 
+	/**
+	 * Creates a new Promptlet and immediately adds it to the PromptSet
+	 * @param {...*} constructorArgs Arguments passed to the Promptlet constructor
+	 * @return {PromptSet} Returns 'this' PromptSet for chaining
+	 */
+	addNew(...constructorArgs) {
+		return this.add(PromptSet.Promptlet(...constructorArgs));
+	}
+
+	/**
+	 * Adds already instantiated Promptlets to the PromptSet
+	 * @param {Promptlet} set Promptlet to add to this PromptSet
+	 * @return {PromptSet} Returns 'this' PromptSet for chaining
+	 */
 	add(set) {
 		if(set.constructor.name !== "Promptlet") throw "PromptSet.add() only accepts 'Promptlet' instances";
 
@@ -37,7 +51,7 @@ class PromptSet {
 		return this;
 	}
 
-	// Warning: May break prompts that have the removed Promptlet as a prerequisite
+	// Warning: Will break prompts that have the removed Promptlet as a prerequisite
 	remove(identifier) {
 		const removed = this.searchSet(identifier);
 
@@ -145,7 +159,7 @@ class PromptSet {
 			choices: this.names.map(val => {
 				const set = this.set[val];
 				return {
-					name: `${set.satisfied ? "✔ " : this.preSatisfied(set, true) ? "○ " : "⛝ "}${this.set[val].optionName}`,
+					name: `${set.satisfied ? (set.editable ? "✎ " : "✔ ") : (this.preSatisfied(set, true) ? "○ " : "⛝ ")}${this.set[val].optionName}`,
 					value: val
 				};
 			})

@@ -1,16 +1,16 @@
 const PromptSet = require(".");
 
 const set = PromptSet.chain()
-	.add(PromptSet.Promptlet("First Option", {
+	.addNew("First Option", {
 		name: "Opt 1",
 		message: "Prompted Once"
-	})).add(PromptSet.Promptlet("Second Option", {
+	}, true).addNew("Second Option", {
 		name: "Opt 2",
 		message: "Prompted Twice"
-	})).add(PromptSet.Promptlet("Third Option", {
+	}).addNew("Third Option", {
 		name: "Opt 3",
 		message: "Prompted Thrice"
-	}))
+	})
 	.addPrerequisite("Opt 2")
 	.addPrerequisite("Opt 1")
 	.removePrerequisite("Opt 1");
