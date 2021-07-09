@@ -3,12 +3,27 @@ const Promptlet = require("./Promptlet.js");
 Promptlet.inquirer = inquirer;
 
 class PromptSet {
+	/**
+	 * Inquirer instance being used by the PromptSet
+	 * @static
+	 */
 	static inquirer = inquirer;
 
+	/**
+	 * Creates and returns a new Promptlet
+	 * @static
+	 * @param {...*} args Arguments for the Promptlet constructor
+	 * @return {Promptlet} A new PromptSet instance
+	 */
 	static Promptlet(...args) {
 		return new Promptlet(...args);
 	}
 
+	/**
+	 * Creates and returns a new PromptSet
+	 * @static
+	 * @return {PromptSet} A new PromptSet instance
+	 */
 	static chain() {
 		return new PromptSet();
 	}
@@ -51,7 +66,12 @@ class PromptSet {
 		return this;
 	}
 
-	// Warning: Will break prompts that have the removed Promptlet as a prerequisite
+	/**
+	 * Remove a Promptlet from the PromptSet
+	 * Warning: Will break prompts that have the removed Promptlet as a prerequisite
+	 * @param identifier Identifier for the Promptlet to remove from the PromptSet (Promptlet must be in set)
+	 * @return {PromptSet} Returns 'this' PromptSet for chaining
+	 */
 	remove(identifier) {
 		const removed = this.searchSet(identifier);
 
@@ -62,6 +82,12 @@ class PromptSet {
 		return this;
 	}
 
+	/**
+	 *
+	 * @param {string|Promptlet} prerequisiteIdentifier Identifier for a prerequisite Promptlet (Promptlet must be in set)
+	 * @param {string|Promptlet} [addToIdentifier] Identifier for a Promptlet to add prerequisite to (Promptlet must be in set). Will use PromptSet.previous by default
+	 * @return {PromptSet} Returns 'this' PromptSet for chaining
+	 */
 	addPrerequisite(prerequisiteIdentifier, addToIdentifier) {
 		const addMe = this.searchSet(prerequisiteIdentifier);
 		const addTo = this.searchSet(this.refreshPrevious(addToIdentifier));
@@ -74,6 +100,12 @@ class PromptSet {
 		return this;
 	}
 
+	/**
+	 * Remove a prerequisite from a specific Promptlet
+	 * @param {string|Promptlet} removeIdentifier Identifier for a prerequisite Promptlet (Promptlet must be in set)
+	 * @param {string|Promptlet} [removeFromIdentifier] Identifier for a Promptlet to remove prerequisite from (Promptlet must be in set). Will use PromptSet.previous by default
+	 * @return {PromptSet} Returns 'this' PromptSet for chaining
+	 */
 	removePrerequisite(removeIdentifier, removeFromIdentifier) {
 		const removeMe = this.searchSet(removeIdentifier);
 		const removeFrom = this.searchSet(this.refreshPrevious(removeFromIdentifier));
@@ -83,6 +115,11 @@ class PromptSet {
 		return this;
 	}
 
+	/**
+	 * Search the PromptSet for a specific Promptlet
+	 * @param {string|Promptlet} identifier The name of the Promptlet to search for. If a Promptlet is provided, the Promptlet.name property will be used
+	 * @return {Promptlet} The searched Promptlet if found
+	 */
 	searchSet(identifier) {
 		if(identifier.constructor.name === "Promptlet") identifier = identifier.name;
 
@@ -92,6 +129,12 @@ class PromptSet {
 		return this.set[identifier];
 	}
 
+	/**
+	 *
+	 * @param {string} [newPrevious] New value to set as previous. If provided, this will be returned. Else, PromptSet.previous will be returned
+	 * @param {boolean} [throwOnInvalid = true] Whether to throw an error on an undefined return value.
+	 * @return {string} Returns the name of a Promptlet from newPrevious (if provided) or this.previous. May be undefined if PromptSet.previous is not set or if it has been removed
+	 */
 	refreshPrevious(newPrevious, throwOnInvalid = true) {
 		if(typeof newPrevious === "string") this.previous = newPrevious;
 
@@ -100,6 +143,12 @@ class PromptSet {
 		return this.previous;
 	}
 
+	/**
+	 * Used for determining whether all the prerequisites for a Promptlet have been met
+	 * @param {Promptlet} chosenPromptlet A Promptlet to check prerequisites from
+	 * @param {boolean} [silent = false] When not set to true, the first unsatisfied prerequisite will be logged through the console
+	 * @return {boolean} Whether the chosenPromptlet has had all of its prerequisites met
+	 */
 	preSatisfied(chosenPromptlet, silent = false) {
 		let preSatisfied = true;
 
@@ -118,6 +167,10 @@ class PromptSet {
 		return preSatisfied;
 	}
 
+	/**
+	 * Returns true when all necessary Promptlets have been answered
+	 * @return {boolean} Whether all necessary Promptlets have been answered
+	 */
 	isSatisfied() {
 		for(const key of this.names) {
 			if(!this.set[key].satisfied) return false;
@@ -125,6 +178,10 @@ class PromptSet {
 		return true;
 	}
 
+	/**
+	 * Starts up the PromptSet and finishes once all the necessary questions are answered
+	 * @return {Promise<Object>} Returns a Promise that resolves to the result of {@see PromptSet.reduce}
+	 */
 	start() {
 		if(this.names.length === 0) return console.log("Empty PromptSet");
 
@@ -150,6 +207,11 @@ class PromptSet {
 		});
 	}
 
+	/**
+	 * Creates a list prompt for the user to select what to answer from the PromptSet
+	 * @async
+	 * @return {Promptlet} Returns the selected Promptlet from the set. Does not take into account prerequisites or editable state {@see PromptSet.start}
+	 */
 	async selectPromptlet() {
 		const chosenPrompt = await inquirer({
 			type: "list",
@@ -172,6 +234,11 @@ class PromptSet {
 		return this.set[this.default];
 	}
 
+	/**
+	 * Collects the values of every Promptlet into an Object.
+	 * Note: Unanswered Promptlets have a value of "<Incomplete>"
+	 * @return {Object} All results in "name: value" pairs
+	 */
 	reduce() {
 		return this.names.reduce((acc, val) => {
 			const selectedSet = this.set[val];
@@ -182,13 +249,24 @@ class PromptSet {
 		}, {});
 	}
 
+	/**
+	 * Clears console if PromptSet.autoclear is set to a truthy value
+	 */
 	clearConsole() {
 		if(this.autoclear) console.clear();
 	}
 
+	/**
+	 * Returns the JSON.stringify() version of {@see PromptSet.reduce}
+	 * @return {string}
+	 */
 	toString() {
 		return JSON.stringify(this.reduce());
 	}
 }
 
+/**
+ * @module PromptSet
+ * Class wrapper on top of inquirer made to make setup scripts and dependent prompts easier to manage
+ */
 module.exports = PromptSet;
