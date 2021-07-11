@@ -4,7 +4,9 @@
   "description": "Create setup prompts for users that can be gone through in any order of their choosing as long as some prerequisites are met",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test.js",
+    "docs": "echo 'Note: Requires Dev-Dependencies to be Installed' && jsdoc -c jsdoc.json",
+    "servedocs": "npx http-server -c-1 ./docs"
   },
   "repository": {
     "type": "git",
@@ -25,5 +27,9 @@
   "homepage": "https://github.com/malee31/prompt-set#readme",
   "dependencies": {
     "inquirer": "^8.1.1"
+  },
+  "devDependencies": {
+    "docdash": "^1.2.0",
+    "jsdoc": "^3.6.7"
   }
 }

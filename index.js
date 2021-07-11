@@ -2,12 +2,25 @@ const inquirer = require("inquirer").createPromptModule();
 const Promptlet = require("./Promptlet.js");
 Promptlet.inquirer = inquirer;
 
+/** Class that manages and contains instances of Promptlets */
 class PromptSet {
 	/**
 	 * Inquirer instance being used by the PromptSet
 	 * @static
 	 */
 	static inquirer = inquirer;
+
+	/**
+	 * Instantiates a new PromptSet
+	 */
+	constructor() {
+		this.set = {};
+		this.names = [];
+		this.default = 0;
+		this.satisfied = false;
+		this.autoclear = true;
+		this.previous = undefined;
+	}
 
 	/**
 	 * Creates and returns a new Promptlet
@@ -26,15 +39,6 @@ class PromptSet {
 	 */
 	static chain() {
 		return new PromptSet();
-	}
-
-	constructor() {
-		this.set = {};
-		this.names = [];
-		this.default = 0;
-		this.satisfied = false;
-		this.autoclear = true;
-		this.previous = undefined;
 	}
 
 	/**
@@ -265,8 +269,4 @@ class PromptSet {
 	}
 }
 
-/**
- * @module PromptSet
- * Class wrapper on top of inquirer made to make setup scripts and dependent prompts easier to manage
- */
 module.exports = PromptSet;
