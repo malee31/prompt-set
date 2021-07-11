@@ -17,14 +17,29 @@ class Promptlet {
 		this.prerequisites = [];
 	}
 
-	static chain() {
-		return new Promptlet();
+	/**
+	 * Creates and returns a new Promptlet instance
+	 * @static
+	 * @param {...*} args Arguments for the Promptlet constructor
+	 * @return {Promptlet} A new Promptlet instance
+	 */
+	static chain(...args) {
+		return new Promptlet(...args);
 	}
 
+	/**
+	 * Getter for Promptlet.name property
+	 * @return {string} Returns the name property of the Promptlet
+	 */
 	get name() {
 		return this.info.name;
 	}
 
+	/**
+	 * Runs the Promptlet and marks Promptlet.satisfied to true. Updates Promptlet.value
+	 * @async
+	 * @return {Promise} Resolves when execution of inquirer finishes
+	 */
 	async execute() {
 		this.value = (await Promptlet.inquirer(this.info))[this.name];
 		this.satisfied = true;
