@@ -6,7 +6,9 @@ Promptlet.inquirer = inquirer;
 class PromptSet {
 	/**
 	 * Inquirer instance being used by the PromptSet
+	 * Either the inquirer.prompt function or the inquirer.createPromptModule()'s function
 	 * @static
+	 * @type {function}
 	 */
 	static inquirer = inquirer;
 
@@ -184,7 +186,7 @@ class PromptSet {
 
 	/**
 	 * Starts up the PromptSet and finishes once all the necessary questions are answered
-	 * @return {Promise<Object>} Returns a Promise that resolves to the result of {@see PromptSet.reduce}
+	 * @return {Promise<Object>} Returns a Promise that resolves to the result of {@link PromptSet#reduce|PromptSet.reduce}
 	 */
 	start() {
 		if(this.names.length === 0) return console.log("Empty PromptSet");
@@ -214,7 +216,7 @@ class PromptSet {
 	/**
 	 * Creates a list prompt for the user to select what to answer from the PromptSet
 	 * @async
-	 * @return {Promptlet} Returns the selected Promptlet from the set. Does not take into account prerequisites or editable state {@see PromptSet.start}
+	 * @return {Promptlet} Returns the selected Promptlet from the set. Does not take into account prerequisites or editable state {@link PromptSet#start|PromptSet.start}
 	 */
 	async selectPromptlet() {
 		const chosenPrompt = await inquirer({
@@ -261,7 +263,7 @@ class PromptSet {
 	}
 
 	/**
-	 * Returns the JSON.stringify() version of {@see PromptSet.reduce}
+	 * Returns the JSON.stringify() version of {@link PromptSet#reduce|PromptSet.reduce}
 	 * @return {string}
 	 */
 	toString() {
