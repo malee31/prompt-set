@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>index.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Promptlet.html">Promptlet</a><ul class='methods'><li data-type='method'><a href="Promptlet.html#.chain">chain</a></li><li data-type='method'><a href="Promptlet.html#execute">execute</a></li></ul></li><li><a href="PromptSet.html">PromptSet</a><ul class='methods'><li data-type='method'><a href="PromptSet.html#.chain">chain</a></li><li data-type='method'><a href="PromptSet.html#.Promptlet">Promptlet</a></li><li data-type='method'><a href="PromptSet.html#add">add</a></li><li data-type='method'><a href="PromptSet.html#addNew">addNew</a></li><li data-type='method'><a href="PromptSet.html#addPrerequisite">addPrerequisite</a></li><li data-type='method'><a href="PromptSet.html#clearConsole">clearConsole</a></li><li data-type='method'><a href="PromptSet.html#isSatisfied">isSatisfied</a></li><li data-type='method'><a href="PromptSet.html#preSatisfied">preSatisfied</a></li><li data-type='method'><a href="PromptSet.html#reduce">reduce</a></li><li data-type='method'><a href="PromptSet.html#refreshPrevious">refreshPrevious</a></li><li data-type='method'><a href="PromptSet.html#remove">remove</a></li><li data-type='method'><a href="PromptSet.html#removePrerequisite">removePrerequisite</a></li><li data-type='method'><a href="PromptSet.html#searchSet">searchSet</a></li><li data-type='method'><a href="PromptSet.html#selectPromptlet">selectPromptlet</a></li><li data-type='method'><a href="PromptSet.html#start">start</a></li><li data-type='method'><a href="PromptSet.html#toString">toString</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">index.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const inquirer = require("inquirer").createPromptModule();
+const Promptlet = require("./Promptlet.js");
+Promptlet.inquirer = inquirer;
+
+/** Class that manages and contains instances of Promptlets */
+class PromptSet {
+	/**
+	 * Inquirer instance being used by the PromptSet
+	 * Either the inquirer.prompt function or the inquirer.createPromptModule()'s function
+	 * @static
+	 * @type {function}
+	 */
+	static inquirer = inquirer;
+
+	/**
+	 * Getter for PromptSet.names property. Read-only.
+	 * @return {string[]} Returns an array of the Promptlet names in the set
+	 */
+	get names() {
+		return Object.keys(this.set);
+	}
+
+	/**
+	 * Instantiates a new PromptSet
+	 */
+	constructor() {
+		this.set = {};
+		this.default = 0;
+		this.satisfied = false;
+		this.autoclear = true;
+		this.previous = undefined;
+	}
+
+	/**
+	 * Creates and returns a new Promptlet
+	 * @static
+	 * @param {...*} args Arguments for the Promptlet constructor
+	 * @return {Promptlet} A new PromptSet instance
+	 */
+	static Promptlet(...args) {
+		return new Promptlet(...args);
+	}
+
+	/**
+	 * Creates and returns a new PromptSet
+	 * @static
+	 * @return {PromptSet} A new PromptSet instance
+	 */
+	static chain() {
+		return new PromptSet();
+	}
+
+	/**
+	 * Creates a new Promptlet and immediately adds it to the PromptSet
+	 * @param {...*} constructorArgs Arguments passed to the Promptlet constructor
+	 * @return {PromptSet} Returns 'this' PromptSet for chaining
+	 */
+	addNew(...constructorArgs) {
+		return this.add(PromptSet.Promptlet(...constructorArgs));
+	}
+
+	/**
+	 * Adds already instantiated Promptlets to the PromptSet
+	 * @param {Promptlet} set Promptlet to add to this PromptSet
+	 * @return {PromptSet} Returns 'this' PromptSet for chaining
+	 */
+	add(set) {
+		if(set.constructor.name !== "Promptlet") throw "PromptSet.add() only accepts 'Promptlet' instances";
+
+		if(this.names.includes(set.name)) {
+			console.warn("Overwriting a prompt with an identical name");
+			this.remove(set.name);
+		}
+
+		this.set[set.name] = set;
+		this.refreshPrevious(set.name, false);
+
+		return this;
+	}
+
+	/**
+	 * Remove a Promptlet from the PromptSet
+	 * Warning: Will break prompts that have the removed Promptlet as a prerequisite
+	 * @param identifier Identifier for the Promptlet to remove from the PromptSet (Promptlet must be in set)
+	 * @return {PromptSet} Returns 'this' PromptSet for chaining
+	 */
+	remove(identifier) {
+		const removed = this.searchSet(identifier);
+
+		delete this.set[removed.name];
+		this.names.splice(this.names.indexOf(removed.name), 1);
+		if(this.previous === removed.name) this.previous = undefined;
+
+		return this;
+	}
+
+	/**
+	 *
+	 * @param {string|Promptlet} prerequisiteIdentifier Identifier for a prerequisite Promptlet (Promptlet must be in set)
+	 * @param {string|Promptlet} [addToIdentifier] Identifier for a Promptlet to add prerequisite to (Promptlet must be in set). Will use PromptSet.previous by default
+	 * @return {PromptSet} Returns 'this' PromptSet for chaining
+	 */
+	addPrerequisite(prerequisiteIdentifier, addToIdentifier) {
+		const addMe = this.searchSet(prerequisiteIdentifier);
+		const addTo = this.searchSet(this.refreshPrevious(addToIdentifier));
+
+		if(!addTo.prerequisites.includes(addMe.name)) {
+			addTo.prerequisites.push(addMe.name);
+			addTo.prerequisites.sort();
+		}
+
+		return this;
+	}
+
+	/**
+	 * Remove a prerequisite from a specific Promptlet
+	 * @param {string|Promptlet} removeIdentifier Identifier for a prerequisite Promptlet (Promptlet must be in set)
+	 * @param {string|Promptlet} [removeFromIdentifier] Identifier for a Promptlet to remove prerequisite from (Promptlet must be in set). Will use PromptSet.previous by default
+	 * @return {PromptSet} Returns 'this' PromptSet for chaining
+	 */
+	removePrerequisite(removeIdentifier, removeFromIdentifier) {
+		const removeMe = this.searchSet(removeIdentifier);
+		const removeFrom = this.searchSet(this.refreshPrevious(removeFromIdentifier));
+
+		if(removeFrom.prerequisites.includes(removeMe.name)) removeFrom.prerequisites.slice(removeFrom.prerequisites.indexOf(removeMe.name));
+
+		return this;
+	}
+
+	/**
+	 * Search the PromptSet for a specific Promptlet
+	 * @param {string|Promptlet} identifier The name of the Promptlet to search for. If a Promptlet is provided, the Promptlet.name property will be used
+	 * @return {Promptlet} The searched Promptlet if found
+	 */
+	searchSet(identifier) {
+		if(identifier.constructor.name === "Promptlet") identifier = identifier.name;
+
+		if(typeof identifier !== "string") throw new Error("Identifier must be a 'string' or 'Promptlet' instance");
+		if(!this.set[identifier]) throw new Error("Name not found in set");
+
+		return this.set[identifier];
+	}
+
+	/**
+	 *
+	 * @param {string} [newPrevious] New value to set as previous. If provided, this will be returned. Else, PromptSet.previous will be returned
+	 * @param {boolean} [throwOnInvalid = true] Whether to throw an error on an undefined return value.
+	 * @return {string} Returns the name of a Promptlet from newPrevious (if provided) or this.previous. May be undefined if PromptSet.previous is not set or if it has been removed
+	 */
+	refreshPrevious(newPrevious, throwOnInvalid = true) {
+		if(typeof newPrevious === "string") this.previous = newPrevious;
+
+		if(throwOnInvalid &amp;&amp; typeof this.previous !== "string") throw new Error("No previous Promptlet name saved.\nNote: Previous is saved when a Promptlet is added or prerequisites are edited on the PromptSet and unsaved when the Promptlet is removed.");
+
+		return this.previous;
+	}
+
+	/**
+	 * Used for determining whether all the prerequisites for a Promptlet have been met
+	 * @param {Promptlet} chosenPromptlet A Promptlet to check prerequisites from
+	 * @param {boolean} [silent = false] When not set to true, the first unsatisfied prerequisite will be logged through the console
+	 * @return {boolean} Whether the chosenPromptlet has had all of its prerequisites met
+	 */
+	preSatisfied(chosenPromptlet, silent = false) {
+		let preSatisfied = true;
+
+		for(const prerequisite of chosenPromptlet.prerequisites) {
+			const pre = this.searchSet(prerequisite);
+
+			if(!pre.satisfied) {
+				preSatisfied = false;
+
+				if(!silent) console.log(`Prompt must be answered before this:\n${pre.optionName}`);
+
+				break;
+			}
+		}
+
+		return preSatisfied;
+	}
+
+	/**
+	 * Returns true when all necessary Promptlets have been answered
+	 * @return {boolean} Whether all necessary Promptlets have been answered
+	 */
+	isSatisfied() {
+		for(const name in this.set) {
+			if(!this.set[name].satisfied) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Starts up the PromptSet and finishes once all the necessary questions are answered
+	 * @return {Promise&lt;Object>} Returns a Promise that resolves to the result of {@link PromptSet#reduce|PromptSet.reduce}
+	 */
+	start() {
+		if(this.names.length === 0) return console.log("Empty PromptSet");
+
+		return new Promise(async resolve => {
+			while(!this.isSatisfied()) {
+				const chosenPromptlet = await this.selectPromptlet();
+
+				if(chosenPromptlet.satisfied &amp;&amp; !chosenPromptlet.editable) {
+					this.clearConsole();
+					console.log("Prompt Already Answered. (Editing this prompt is disabled)");
+
+					continue;
+				}
+
+				if(!this.preSatisfied(chosenPromptlet)) continue;
+
+				await chosenPromptlet.execute();
+
+				this.clearConsole();
+			}
+
+			resolve(this.reduce());
+		});
+	}
+
+	/**
+	 * Creates a list prompt for the user to select what to answer from the PromptSet
+	 * @async
+	 * @return {Promptlet} Returns the selected Promptlet from the set. Does not take into account prerequisites or editable state {@link PromptSet#start|PromptSet.start}
+	 */
+	async selectPromptlet() {
+		const chosenPrompt = await inquirer({
+			type: "list",
+			name: "PromptletSelected",
+			default: this.default,
+			message: "Choose a prompt to answer",
+			choices: this.names.map(val => {
+				const set = this.set[val];
+				return {
+					name: `${set.satisfied ? (set.editable ? "✎ " : "✔ ") : (this.preSatisfied(set, true) ? "○ " : "⛝ ")}${this.set[val].optionName}`,
+					value: val
+				};
+			})
+		});
+
+		this.default = chosenPrompt["PromptletSelected"];
+
+		this.clearConsole();
+
+		return this.set[this.default];
+	}
+
+	/**
+	 * Collects the values of every Promptlet into an Object.
+	 * Note: Unanswered Promptlets have a value of "&lt;Incomplete>"
+	 * @return {Object} All results in "name: value" pairs
+	 */
+	reduce() {
+		return this.names.reduce((acc, val) => {
+			const selectedSet = this.set[val];
+
+			acc[selectedSet.name] = selectedSet.value;
+
+			return acc;
+		}, {});
+	}
+
+	/**
+	 * Clears console if PromptSet.autoclear is set to a truthy value
+	 */
+	clearConsole() {
+		if(this.autoclear) console.clear();
+	}
+
+	/**
+	 * Returns the JSON.stringify() version of {@link PromptSet#reduce|PromptSet.reduce}
+	 * @return {string}
+	 */
+	toString() {
+		return JSON.stringify(this.reduce());
+	}
+}
+
+module.exports = PromptSet;</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a> on Wed Jul 14 2021 14:22:59 GMT-0700 (Pacific Daylight Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+
+</body>
+</html>

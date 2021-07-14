@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>Promptlet.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Promptlet.html">Promptlet</a><ul class='methods'><li data-type='method'><a href="Promptlet.html#.chain">chain</a></li><li data-type='method'><a href="Promptlet.html#execute">execute</a></li></ul></li><li><a href="PromptSet.html">PromptSet</a><ul class='methods'><li data-type='method'><a href="PromptSet.html#.chain">chain</a></li><li data-type='method'><a href="PromptSet.html#.Promptlet">Promptlet</a></li><li data-type='method'><a href="PromptSet.html#add">add</a></li><li data-type='method'><a href="PromptSet.html#addNew">addNew</a></li><li data-type='method'><a href="PromptSet.html#addPrerequisite">addPrerequisite</a></li><li data-type='method'><a href="PromptSet.html#clearConsole">clearConsole</a></li><li data-type='method'><a href="PromptSet.html#isSatisfied">isSatisfied</a></li><li data-type='method'><a href="PromptSet.html#preSatisfied">preSatisfied</a></li><li data-type='method'><a href="PromptSet.html#reduce">reduce</a></li><li data-type='method'><a href="PromptSet.html#refreshPrevious">refreshPrevious</a></li><li data-type='method'><a href="PromptSet.html#remove">remove</a></li><li data-type='method'><a href="PromptSet.html#removePrerequisite">removePrerequisite</a></li><li data-type='method'><a href="PromptSet.html#searchSet">searchSet</a></li><li data-type='method'><a href="PromptSet.html#selectPromptlet">selectPromptlet</a></li><li data-type='method'><a href="PromptSet.html#start">start</a></li><li data-type='method'><a href="PromptSet.html#toString">toString</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Promptlet.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** Class that manages individual prompts and their responses. Wraps inquirer.prompt() */
+class Promptlet {
+	// Must set static Promptlet.inquirer to either require("inquirer").prompt or require("inquirer").createPromptModule() before use
+	/**
+	 * Inquirer instance being used by Promptlet.execute
+	 * Either the inquirer.prompt function or the inquirer.createPromptModule()'s function
+	 * Try to keep the same function instance as PromptSet but a different one will be fine too (May cause some strange issues if using additional inquirer plugins)
+	 * @static
+	 * @type {function}
+	 */
+	static inquirer;
+	/**
+	 * Default object template for the inquirer prompt function. Options passed to the Promptlet will overwrite these.
+	 * The name property will be ignored on the default if set.
+	 * @static
+	 * @type {Object}
+	 */
+	static default = {
+		type: "input",
+		// name: "none",
+		message: "",
+	};
+
+	/**
+	 * Instantiates a new Promptlet
+	 * @param {string} optionName The string displayed on the list of prompts from PromptSet.selectPromptlet()
+	 * @param {Object} info Object with all the prompt configurations passed to inquirer. See the 'inquirer' documentation on npm or Github for specific details. Name property required
+	 * @param {boolean} [editable = false] Whether the prompt can be selected and answered again after being completed once
+	 */
+	constructor(optionName, info, editable = false) {
+		if(typeof info.name !== "string") throw "Name Property Required (Type: string)";
+		this.satisfied = false;
+		this.editable = Boolean(editable);
+		this.value = "&lt;Incomplete>";
+		this.info = Object.assign({}, Promptlet.default, info);
+		this.optionName = optionName;
+		this.prerequisites = [];
+	}
+
+	/**
+	 * Getter for Promptlet.name property
+	 * @return {string} Returns the name property of the Promptlet
+	 */
+	get name() {
+		return this.info.name;
+	}
+
+	/**
+	 * Creates and returns a new Promptlet instance
+	 * @static
+	 * @param {...*} args Arguments for the Promptlet constructor
+	 * @return {Promptlet} A new Promptlet instance
+	 */
+	static chain(...args) {
+		return new Promptlet(...args);
+	}
+
+	/**
+	 * Runs the Promptlet and marks Promptlet.satisfied to true. Updates Promptlet.value
+	 * @async
+	 * @return {Promise} Resolves when execution of inquirer finishes
+	 */
+	async execute() {
+		this.value = (await Promptlet.inquirer(this.info))[this.name];
+		this.satisfied = true;
+	}
+}
+
+module.exports = Promptlet;</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a> on Wed Jul 14 2021 14:22:59 GMT-0700 (Pacific Daylight Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+
+</body>
+</html>
