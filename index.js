@@ -13,11 +13,18 @@ class PromptSet {
 	static inquirer = inquirer;
 
 	/**
+	 * Getter for PromptSet.names property. Read-only.
+	 * @return {string[]} Returns an array of the Promptlet names in the set
+	 */
+	get names() {
+		return Object.keys(this.set);
+	}
+
+	/**
 	 * Instantiates a new PromptSet
 	 */
 	constructor() {
 		this.set = {};
-		this.names = [];
 		this.default = 0;
 		this.satisfied = false;
 		this.autoclear = true;
@@ -65,7 +72,6 @@ class PromptSet {
 			this.remove(set.name);
 		}
 
-		this.names.push(set.name);
 		this.set[set.name] = set;
 		this.refreshPrevious(set.name, false);
 
@@ -178,8 +184,10 @@ class PromptSet {
 	 * @return {boolean} Whether all necessary Promptlets have been answered
 	 */
 	isSatisfied() {
-		for(const key of this.names) {
-			if(!this.set[key].satisfied) return false;
+		for(const name in this.set) {
+			if(!this.set[name].satisfied) {
+				return false;
+			}
 		}
 		return true;
 	}
