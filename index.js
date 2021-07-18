@@ -12,14 +12,17 @@ class PromptSet {
 	 */
 	static inquirer = inquirer;
 
-	static finishPrompt = new Promptlet("Done?",
-		{
-			name: "finished",
-			message: "Confirm that you are finished (Default: No)",
-			type: "confirm",
-			default: false
-		}
-	);
+	/**
+	 * Valid finishing modes for the PromptSet
+	 * Aggressive: Combination of 'confirm' and 'choice'
+	 * Confirm: Confirm after all prerequisites are met and every edit after that as well. Identical to auto if nothing is editable
+	 * Choice: Add an option to close the list at the end after all prerequisites are met
+	 * Auto: Automatically stops execution and closes the list after prerequisites are met
+	 * @static
+	 * @type {Array<string>}
+	 */
+	static finishModes = ["aggressive", "confirm", "choice", "auto"];
+
 
 	/**
 	 * Getter for PromptSet.names property. Read-only.
@@ -37,8 +40,18 @@ class PromptSet {
 		this.default = 0;
 		this.satisfied = false;
 		this.autoclear = true;
-		this.confirmFinish = true;
+		this.requiredSet = [];
 		this.previous = undefined;
+		this.finishMode = PromptSet.finishModes[3];
+		this.finishPrompt = new Promptlet("Done?",
+			{
+				name: "finished",
+				message: "Confirm that you are finished (Default: No)",
+				type: "confirm",
+				default: false
+			}
+		);
+		this.finishPrompt.value = false;
 	}
 
 	/**
@@ -114,10 +127,7 @@ class PromptSet {
 		const addMe = this.searchSet(prerequisiteIdentifier);
 		const addTo = this.searchSet(this.refreshPrevious(addToIdentifier));
 
-		if(!addTo.prerequisites.includes(addMe.name)) {
-			addTo.prerequisites.push(addMe.name);
-			addTo.prerequisites.sort();
-		}
+		addTo.addPrerequisite(addMe.name);
 
 		return this;
 	}
@@ -132,7 +142,34 @@ class PromptSet {
 		const removeMe = this.searchSet(removeIdentifier);
 		const removeFrom = this.searchSet(this.refreshPrevious(removeFromIdentifier));
 
-		if(removeFrom.prerequisites.includes(removeMe.name)) removeFrom.prerequisites.slice(removeFrom.prerequisites.indexOf(removeMe.name));
+		removeFrom.removePrerequisite(removeMe.name);
+
+		return this;
+	}
+
+	/**
+	 * Makes a Promptlet answer required to finish
+	 * @param {string|Promptlet} [requiredIdentifier] Identifier for a Promptlet to make required (Promptlet must be in set). Will use PromptSet.previous by default
+	 * @return {PromptSet} Returns 'this' PromptSet for chaining
+	 */
+	required(requiredIdentifier) {
+		const requireMe = this.searchSet(this.refreshPrevious(requiredIdentifier));
+		if(!this.requiredSet.includes(requireMe.name)) this.requiredSet.push(requireMe.name);
+
+		return this;
+	}
+
+	/**
+	 * Removes a Promptlet from the list of required answers
+	 * @param {string|Promptlet} [optionIdentifier] Identifier for a Promptlet to make optional. (Promptlet must be in set). Will use PromptSet.previous by default
+	 * @return {PromptSet} Returns 'this' PromptSet for chaining
+	 */
+	optional(optionIdentifier) {
+		const requireMe = this.searchSet(this.refreshPrevious(optionIdentifier));
+		if(this.requiredSet.includes(requireMe.name)) {
+			this.requiredSet.slice(this.requiredSet.indexOf(optionIdentifier.name));
+			if(this.previous === requireMe.name) this.previous = undefined;
+		}
 
 		return this;
 	}
@@ -154,10 +191,11 @@ class PromptSet {
 	/**
 	 *
 	 * @param {string} [newPrevious] New value to set as previous. If provided, this will be returned. Else, PromptSet.previous will be returned
-	 * @param {boolean} [throwOnInvalid = true] Whether to throw an error on an undefined return value.
+	 * @param {boolean} [throwOnInvalid = true] Whether to throw an error on an undefined return value
 	 * @return {string} Returns the name of a Promptlet from newPrevious (if provided) or this.previous. May be undefined if PromptSet.previous is not set or if it has been removed
 	 */
 	refreshPrevious(newPrevious, throwOnInvalid = true) {
+		if(newPrevious.constructor.name === "Promptlet") newPrevious = newPrevious.name;
 		if(typeof newPrevious === "string") this.previous = newPrevious;
 
 		if(throwOnInvalid && typeof this.previous !== "string") throw new Error("No previous Promptlet name saved.\nNote: Previous is saved when a Promptlet is added or prerequisites are edited on the PromptSet and unsaved when the Promptlet is removed.");
@@ -205,12 +243,47 @@ class PromptSet {
 
 	/**
 	 * Toggle or set whether or not to confirm that the user is done before terminating the PromptSet
-	 * @param {boolean} [toggleVal = !this.confirmFinish] Set the value of whether or not to confirm that the user is done before finishing up. Toggles if no value is supplied
+	 * @throws {RangeError} Index out of bounds for finish mode array
+	 * @throws {TypeError} Throws if mode is not a string, a number, or a number string
+	 * @param {string|number} [mode = PromptSet.finishModes[3]] The finish mode to use. See [PromptSet#finishModes]{@link PromptSet.finishModes} for details
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
 	 */
-	toggleConfirmFinish(toggleVal = !this.confirmFinish) {
-		this.confirmFinish = Boolean(toggleVal);
+	setFinishMode(mode) {
+		if(typeof mode === "number" || !isNaN(Number(mode))) {
+			mode = Math.trunc(Number(mode));
+			if(mode < 0 || mode >= PromptSet.finishModes.length) throw new RangeError(`Index Out of Bounds: ${mode}\nExpected 0 to ${PromptSet.finishModes.length}`);
+			this.finishMode = PromptSet.finishModes[mode];
+		} else if(typeof mode === "string") {
+			mode = mode.trim().toLowerCase();
+			this.finishMode = PromptSet.finishModes.includes(mode) ? mode : PromptSet.finishModes[3];
+		} else throw new TypeError(`String or Number expected. Received: <Type: ${typeof mode}> (${mode})`);
+
 		return this;
+	}
+
+	/**
+	 * Returns whether or not to close the list (True after everything needed to be answered has been answered)
+	 * @return {boolean} Whether to end execution
+	 */
+	async finished() {
+		let finish = this.isSatisfied();
+
+		if(finish && this.finishMode !== PromptSet.finishModes[3]) {
+
+			switch(this.finishMode) {
+				case PromptSet.finishModes[0]:
+				case PromptSet.finishModes[1]:
+					finish = await this.finishPrompt.execute();
+					this.clearConsole();
+					break;
+				case PromptSet.finishModes[2]:
+					finish = this.finishPrompt.value;
+					break;
+			}
+
+		}
+
+		return finish;
 	}
 
 	/**
@@ -221,7 +294,7 @@ class PromptSet {
 		if(this.names.length === 0) throw new Error("Cannot start an empty PromptSet");
 
 		return new Promise(async resolve => {
-			while(true) {
+			while(!await this.finished()) {
 				const chosenPromptlet = await this.selectPromptlet();
 
 				if(chosenPromptlet.satisfied && !chosenPromptlet.editable) {
@@ -231,20 +304,10 @@ class PromptSet {
 					continue;
 				}
 
-				if(!this.preSatisfied(chosenPromptlet)) continue;
+				if(!this.preSatisfied(chosenPromptlet) || (chosenPromptlet === this.finishPrompt && this.finishMode === PromptSet.finishModes[0])) continue;
 
 				await chosenPromptlet.execute();
-
 				this.clearConsole();
-
-				if(this.isSatisfied()) {
-					if(this.confirmFinish) {
-						const finish = chosenPromptlet === PromptSet.finishPrompt ? chosenPromptlet.value : await PromptSet.finishPrompt.execute();
-						this.clearConsole();
-						if(!finish) continue;
-					}
-					break;
-				}
 			}
 
 			resolve(this.reduce());
@@ -271,7 +334,7 @@ class PromptSet {
 
 		this.default = chosenPrompt["PromptletSelected"];
 
-		return this.default === PromptSet.finishPrompt.name ? PromptSet.finishPrompt : this.set[this.default];
+		return this.default === this.finishPrompt.name ? this.finishPrompt : this.set[this.default];
 	}
 
 	generateList() {
@@ -283,12 +346,12 @@ class PromptSet {
 			};
 		});
 
-		if(this.isSatisfied() && this.confirmFinish) {
-			PromptSet.finishPrompt.satisfied = false;
+		if(this.isSatisfied() && (this.finishMode === PromptSet.finishModes[0] || this.finishMode === PromptSet.finishModes[2])) {
+			this.finishPrompt.satisfied = false;
 
 			list.push({
-				name: `${PromptSet.finishPrompt.satisfied ? (PromptSet.finishPrompt.editable ? "✎ " : "✔ ") : (this.preSatisfied(PromptSet.finishPrompt, true) ? "○ " : "⛝ ")}${PromptSet.finishPrompt.optionName}`,
-				value: PromptSet.finishPrompt.name
+				name: `${this.preSatisfied(this.finishPrompt, true) ? "○ " : "⛝ "}${this.finishPrompt.optionName}`,
+				value: this.finishPrompt.name
 			});
 		}
 
@@ -319,7 +382,7 @@ class PromptSet {
 
 	/**
 	 * Returns the JSON.stringify() version of [PromptSet.reduce]{@link PromptSet#reduce}
-	 * @return {string} Stringified JSON with all the values
+	 * @return {string} JSON with all the values as a string. Parse with JSON.parse() if needed or use for debugging
 	 */
 	toString() {
 		return JSON.stringify(this.reduce());
