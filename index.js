@@ -12,6 +12,15 @@ class PromptSet {
 	 */
 	static inquirer = inquirer;
 
+	static finishPrompt = new Promptlet("Done?",
+		{
+			name: "finished",
+			message: "Confirm that you are finished (Default: No)",
+			type: "confirm",
+			default: false
+		}
+	);
+
 	/**
 	 * Getter for PromptSet.names property. Read-only.
 	 * @return {string[]} Returns an array of the Promptlet names in the set
@@ -28,6 +37,7 @@ class PromptSet {
 		this.default = 0;
 		this.satisfied = false;
 		this.autoclear = true;
+		this.confirmFinish = true;
 		this.previous = undefined;
 	}
 
@@ -185,6 +195,7 @@ class PromptSet {
 	 */
 	isSatisfied() {
 		for(const name in this.set) {
+			if(!this.set.hasOwnProperty(name)) continue;
 			if(!this.set[name].satisfied) {
 				return false;
 			}
@@ -193,14 +204,24 @@ class PromptSet {
 	}
 
 	/**
+	 * Toggle or set whether or not to confirm that the user is done before terminating the PromptSet
+	 * @param {boolean} [toggleVal = !this.confirmFinish] Set the value of whether or not to confirm that the user is done before finishing up. Toggles if no value is supplied
+	 * @return {PromptSet} Returns 'this' PromptSet for chaining
+	 */
+	toggleConfirmFinish(toggleVal = !this.confirmFinish) {
+		this.confirmFinish = Boolean(toggleVal);
+		return this;
+	}
+
+	/**
 	 * Starts up the PromptSet and finishes once all the necessary questions are answered
-	 * @return {Promise<Object>} Returns a Promise that resolves to the result of {@link PromptSet#reduce|PromptSet.reduce}
+	 * @return {Promise<Object>} Returns a Promise that resolves to the result of [PromptSet.reduce]{@link PromptSet#reduce}
 	 */
 	start() {
-		if(this.names.length === 0) return console.log("Empty PromptSet");
+		if(this.names.length === 0) throw new Error("Cannot start an empty PromptSet");
 
 		return new Promise(async resolve => {
-			while(!this.isSatisfied()) {
+			while(true) {
 				const chosenPromptlet = await this.selectPromptlet();
 
 				if(chosenPromptlet.satisfied && !chosenPromptlet.editable) {
@@ -215,6 +236,15 @@ class PromptSet {
 				await chosenPromptlet.execute();
 
 				this.clearConsole();
+
+				if(this.isSatisfied()) {
+					if(this.confirmFinish) {
+						const finish = chosenPromptlet === PromptSet.finishPrompt ? chosenPromptlet.value : await PromptSet.finishPrompt.execute();
+						this.clearConsole();
+						if(!finish) continue;
+					}
+					break;
+				}
 			}
 
 			resolve(this.reduce());
@@ -224,28 +254,45 @@ class PromptSet {
 	/**
 	 * Creates a list prompt for the user to select what to answer from the PromptSet
 	 * @async
-	 * @return {Promptlet} Returns the selected Promptlet from the set. Does not take into account prerequisites or editable state {@link PromptSet#start|PromptSet.start}
+	 * @return {Promptlet} Returns the selected Promptlet from the set. Does not take into account prerequisites or editable state [PromptSet.start]{@link PromptSet#start}
 	 */
 	async selectPromptlet() {
+		const choiceList = this.generateList();
+		if(choiceList.length === 1) return this.set[choiceList[0].value];
 		const chosenPrompt = await inquirer({
 			type: "list",
 			name: "PromptletSelected",
 			default: this.default,
 			message: "Choose a prompt to answer",
-			choices: this.names.map(val => {
-				const set = this.set[val];
-				return {
-					name: `${set.satisfied ? (set.editable ? "✎ " : "✔ ") : (this.preSatisfied(set, true) ? "○ " : "⛝ ")}${this.set[val].optionName}`,
-					value: val
-				};
-			})
+			choices: choiceList
 		});
-
-		this.default = chosenPrompt["PromptletSelected"];
 
 		this.clearConsole();
 
-		return this.set[this.default];
+		this.default = chosenPrompt["PromptletSelected"];
+
+		return this.default === PromptSet.finishPrompt.name ? PromptSet.finishPrompt : this.set[this.default];
+	}
+
+	generateList() {
+		const list = this.names.map(val => {
+			const set = this.set[val];
+			return {
+				name: `${set.satisfied ? (set.editable ? "✎ " : "✔ ") : (this.preSatisfied(set, true) ? "○ " : "⛝ ")}${set.optionName}`,
+				value: val
+			};
+		});
+
+		if(this.isSatisfied() && this.confirmFinish) {
+			PromptSet.finishPrompt.satisfied = false;
+
+			list.push({
+				name: `${PromptSet.finishPrompt.satisfied ? (PromptSet.finishPrompt.editable ? "✎ " : "✔ ") : (this.preSatisfied(PromptSet.finishPrompt, true) ? "○ " : "⛝ ")}${PromptSet.finishPrompt.optionName}`,
+				value: PromptSet.finishPrompt.name
+			});
+		}
+
+		return list;
 	}
 
 	/**
@@ -271,8 +318,8 @@ class PromptSet {
 	}
 
 	/**
-	 * Returns the JSON.stringify() version of {@link PromptSet#reduce|PromptSet.reduce}
-	 * @return {string}
+	 * Returns the JSON.stringify() version of [PromptSet.reduce]{@link PromptSet#reduce}
+	 * @return {string} Stringified JSON with all the values
 	 */
 	toString() {
 		return JSON.stringify(this.reduce());

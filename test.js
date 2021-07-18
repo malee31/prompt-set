@@ -13,7 +13,8 @@ const set = PromptSet.chain()
 	})
 	.addPrerequisite("Opt 2")
 	.addPrerequisite("Opt 1")
-	.removePrerequisite("Opt 1");
+	.removePrerequisite("Opt 1")
+	// .toggleConfirmFinish();
 
 set.start().then(console.log).then(() => {
 	console.log(`PromptSet.toString(): ${set}`);

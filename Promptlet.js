@@ -1,3 +1,12 @@
+/**
+ * Options for the Promptlet. Not every property is documented here. Options are passed to inquirer.js so additional properties and option can be found [here]{https://github.com/SBoudrias/Inquirer.js/#questions}
+ * @typedef {Object} PromptletOptions
+ * @property {string} name Name for the Promptlet. Used as the key in PromptSet.reduce
+ * @property {string} message Text displayed when the Promptlet is run
+ * @property {string} [type = "input"] Type of [inquirer.js prompt]{@link https://github.com/SBoudrias/Inquirer.js/#prompt} to display
+ * @property {*|function} [default] Value to use if blank answer is given or a function that returns a value to use
+ */
+
 /** Class that manages individual prompts and their responses. Wraps inquirer.prompt() */
 class Promptlet {
 	// Must set static Promptlet.inquirer to either require("inquirer").prompt or require("inquirer").createPromptModule() before use
@@ -24,7 +33,7 @@ class Promptlet {
 	/**
 	 * Instantiates a new Promptlet
 	 * @param {string} optionName The string displayed on the list of prompts from PromptSet.selectPromptlet()
-	 * @param {Object} info Object with all the prompt configurations passed to inquirer. See the 'inquirer' documentation on npm or Github for specific details. Name property required
+	 * @param {PromptletOptions} info Object with all the prompt configurations passed to inquirer. See the 'inquirer' documentation on npm or Github for specific details. Name property required
 	 * @param {boolean} [editable = false] Whether the prompt can be selected and answered again after being completed once
 	 */
 	constructor(optionName, info, editable = false) {
@@ -58,11 +67,12 @@ class Promptlet {
 	/**
 	 * Runs the Promptlet and marks Promptlet.satisfied to true. Updates Promptlet.value
 	 * @async
-	 * @return {Promise} Resolves when execution of inquirer finishes
+	 * @return {Promise<string>} Resolves to the value entered when execution of inquirer finishes
 	 */
 	async execute() {
 		this.value = (await Promptlet.inquirer(this.info))[this.name];
 		this.satisfied = true;
+		return this.value;
 	}
 }
 
