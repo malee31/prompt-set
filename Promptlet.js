@@ -32,18 +32,42 @@ class Promptlet {
 
 	/**
 	 * Instantiates a new Promptlet
+	 * @throws {TypeError} Will throw if info.name is undefined or not a string
 	 * @param {string} optionName The string displayed on the list of prompts from PromptSet.selectPromptlet()
 	 * @param {PromptletOptions} info Object with all the prompt configurations passed to inquirer. See the 'inquirer' documentation on npm or Github for specific details. Name property required
 	 * @param {boolean} [editable = false] Whether the prompt can be selected and answered again after being completed once
 	 */
 	constructor(optionName, info, editable = false) {
-		if(typeof info.name !== "string") throw "Name Property Required (Type: string)";
+		if(typeof info.name !== "string") throw new TypeError("Name Property Required (Type: string)");
 		this.satisfied = false;
 		this.editable = Boolean(editable);
 		this.value = "<Incomplete>";
 		this.info = Object.assign({}, Promptlet.default, info);
 		this.optionName = optionName;
 		this.prerequisites = [];
+	}
+
+	/**
+	 * Adds a prerequisite that must be completed before this Promptlet can run
+	 * @param {string} newPrerequisite The name property of the prerequisite Promptlet
+	 */
+	addPrerequisite(newPrerequisite) {
+		newPrerequisite = newPrerequisite.trim();
+		if(!this.prerequisites.includes(newPrerequisite)) {
+			this.prerequisites.push(newPrerequisite);
+			this.prerequisites.sort();
+		}
+	}
+
+	/**
+	 * Removes a prerequisite that must be completed before this Promptlet can run
+	 * @param {string} removePrerequisite The name property of the prerequisite Promptlet
+	 */
+	removePrerequisite(removePrerequisite) {
+		removePrerequisite = removePrerequisite.trim();
+		if(this.prerequisites.includes(removePrerequisite)) {
+			this.prerequisites.slice(this.prerequisites.indexOf(removePrerequisite));
+		}
 	}
 
 	/**
