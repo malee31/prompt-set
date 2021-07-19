@@ -195,7 +195,7 @@ class PromptSet {
 	 * @return {string} Returns the name of a Promptlet from newPrevious (if provided) or this.previous. May be undefined if PromptSet.previous is not set or if it has been removed
 	 */
 	refreshPrevious(newPrevious, throwOnInvalid = true) {
-		if(newPrevious.constructor.name === "Promptlet") newPrevious = newPrevious.name;
+		if(newPrevious?.constructor.name === "Promptlet") newPrevious = newPrevious.name;
 		if(typeof newPrevious === "string") this.previous = newPrevious;
 
 		if(throwOnInvalid && typeof this.previous !== "string") throw new Error("No previous Promptlet name saved.\nNote: Previous is saved when a Promptlet is added or prerequisites are edited on the PromptSet and unsaved when the Promptlet is removed.");
@@ -294,13 +294,15 @@ class PromptSet {
 		if(this.names.length === 0) throw new Error("Cannot start an empty PromptSet");
 
 		return new Promise(async resolve => {
-			while(!await this.finished()) {
+			let skipCheck = false;
+			while(skipCheck || !await this.finished()) {
 				const chosenPromptlet = await this.selectPromptlet();
+				skipCheck = false;
 
 				if(chosenPromptlet.satisfied && !chosenPromptlet.editable) {
 					this.clearConsole();
 					console.log("Prompt Already Answered. (Editing this prompt is disabled)");
-
+					skipCheck = true;
 					continue;
 				}
 

@@ -14,7 +14,7 @@ const set = PromptSet.chain()
 	.addPrerequisite("Opt 2")
 	.addPrerequisite("Opt 1")
 	.removePrerequisite("Opt 1")
-	.setFinishMode(2);
+	.setFinishMode(1);
 
 set.start().then(console.log).then(() => {
 	console.log(`PromptSet.toString(): ${set}`);
