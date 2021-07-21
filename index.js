@@ -273,6 +273,12 @@ class PromptSet {
 			switch(this.finishMode) {
 				case PromptSet.finishModes[0]:
 				case PromptSet.finishModes[1]:
+					finish = this.names.every(val  => {
+						const set = this.set[val];
+						return set.satisfied && !set.editable;
+					});
+					if(finish) break;
+
 					finish = await this.finishPrompt.execute();
 					this.clearConsole();
 					break;
@@ -296,8 +302,8 @@ class PromptSet {
 		return new Promise(async resolve => {
 			let skipCheck = false;
 			while(skipCheck || !await this.finished()) {
-				const chosenPromptlet = await this.selectPromptlet();
 				skipCheck = false;
+				const chosenPromptlet = await this.selectPromptlet();
 
 				if(chosenPromptlet.satisfied && !chosenPromptlet.editable) {
 					this.clearConsole();
