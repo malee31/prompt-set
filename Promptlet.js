@@ -27,7 +27,7 @@ class Promptlet {
 	static default = {
 		type: "input",
 		// name: "none",
-		message: "",
+		message: ""
 	};
 
 	/**
@@ -44,6 +44,14 @@ class Promptlet {
 		this.value = "<Incomplete>";
 		this.info = Object.assign({}, Promptlet.default, info);
 		this.optionName = optionName;
+		this.validators = [];
+		this.info.validate = async ans => {
+			for(const validator of this.validators) {
+				const valid = await validator(ans);
+				if(valid !== true) return valid;
+			}
+			return true;
+		};
 		this.prerequisites = [];
 	}
 
