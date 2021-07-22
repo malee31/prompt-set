@@ -30,6 +30,11 @@ class Promptlet {
 		message: ""
 	};
 
+	static blankValidator(val) {
+		if(val.trim().length === 0) return "Response cannot be blank";
+		return true;
+	}
+
 	/**
 	 * Instantiates a new Promptlet
 	 * @throws {TypeError} Will throw if info.name is undefined or not a string
@@ -45,6 +50,7 @@ class Promptlet {
 		this.info = Object.assign({}, Promptlet.default, info);
 		this.optionName = optionName;
 		this.validators = [];
+		this.addValidator(Promptlet.blankValidator);
 		this.info.validate = async ans => {
 			for(const validator of this.validators) {
 				const valid = await validator(ans);
@@ -74,8 +80,39 @@ class Promptlet {
 	removePrerequisite(removePrerequisite) {
 		removePrerequisite = removePrerequisite.trim();
 		if(this.prerequisites.includes(removePrerequisite)) {
-			this.prerequisites.slice(this.prerequisites.indexOf(removePrerequisite));
+			this.prerequisites.splice(this.prerequisites.indexOf(removePrerequisite), 1);
 		}
+	}
+
+	/**
+	 * Add a validator to the prompt. Will not add identical duplicates
+	 * @param {function} validator Validator function to add
+	 */
+	addValidator(validator) {
+		if(typeof validator !== "function") throw new TypeError("Function required");
+		if(!this.validators.includes(validator)) {
+			this.validators.push(validator);
+		}
+	}
+
+	/**
+	 * Remove a validator from the prompt. (Requires exact same function instance to remove)
+	 * @param {function} validator Validator function to remove
+	 */
+	removeValidator(validator) {
+		if(typeof validator !== "function") throw new TypeError("Function required");
+		if(this.validators.includes(validator)) {
+			this.validators.splice(this.validators.indexOf(validator), 1);
+		}
+	}
+
+	/**
+	 * Sets whether or not blank answers are allowed. Default is true
+	 * @param allow
+	 */
+	set allowBlank(allow) {
+		if(allow) this.addValidator(Promptlet.blankValidator);
+		else this.removeValidator(Promptlet.blankValidator);
 	}
 
 	/**
