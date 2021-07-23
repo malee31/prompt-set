@@ -1,3 +1,5 @@
+const Configurer = require("../Configurer.js");
+
 /**
  * Options for the Promptlet. Not every property is documented here. Options are passed to inquirer.js so additional properties and option can be found [here]{https://github.com/SBoudrias/Inquirer.js/#questions}
  * @typedef {Object} PromptletOptions
@@ -9,15 +11,6 @@
 
 /** Class that manages individual prompts and their responses. Wraps inquirer.prompt() */
 class Promptlet {
-	// Must set static Promptlet.inquirer to either require("inquirer").prompt or require("inquirer").createPromptModule() before use
-	/**
-	 * Inquirer instance being used by Promptlet.execute
-	 * Either the inquirer.prompt function or the inquirer.createPromptModule()'s function
-	 * Try to keep the same function instance as PromptSet but a different one will be fine too (May cause some strange issues if using additional inquirer plugins)
-	 * @static
-	 * @type {function}
-	 */
-	static inquirer;
 	/**
 	 * Default object template for the inquirer prompt function. Options passed to the Promptlet will overwrite these.
 	 * The name property will be ignored on the default if set.
@@ -139,7 +132,7 @@ class Promptlet {
 	 * @return {Promise<string>} Resolves to the value entered when execution of inquirer finishes
 	 */
 	async execute() {
-		this.value = (await Promptlet.inquirer(this.info))[this.name];
+		this.value = (await Configurer.inquirer(this.info))[this.name];
 		this.satisfied = true;
 		return this.value;
 	}

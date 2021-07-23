@@ -1,4 +1,4 @@
-const PromptSet = require(".");
+const PromptSet = require(".").PromptSet;
 
 const set = PromptSet.chain()
 	.addNew("First Option", {
