@@ -1,4 +1,5 @@
 const Configurer = require("../Configurer.js");
+const Validators = require("../Validators.js");
 
 /**
  * Options for the Promptlet. Not every property is documented here. Options are passed to inquirer.js so additional properties and option can be found [here]{https://github.com/SBoudrias/Inquirer.js/#questions}
@@ -23,11 +24,6 @@ class Promptlet {
 		message: ""
 	};
 
-	static blankValidator(val) {
-		if(val.trim().length === 0) return "Response cannot be blank";
-		return true;
-	}
-
 	/**
 	 * Instantiates a new Promptlet
 	 * @throws {TypeError} Will throw if info.name is undefined or not a string
@@ -43,7 +39,7 @@ class Promptlet {
 		this.info = Object.assign({}, Promptlet.default, info);
 		this.optionName = optionName;
 		this.validators = [];
-		this.addValidator(Promptlet.blankValidator);
+		this.addValidator(Validators.disableBlank);
 		this.info.validate = async ans => {
 			for(const validator of this.validators) {
 				const valid = await validator(ans);
@@ -104,8 +100,8 @@ class Promptlet {
 	 * @param allow
 	 */
 	set allowBlank(allow) {
-		if(allow) this.addValidator(Promptlet.blankValidator);
-		else this.removeValidator(Promptlet.blankValidator);
+		if(allow) this.addValidator(Validators.disableBlank);
+		else this.removeValidator(Validators.disableBlank);
 	}
 
 	/**
