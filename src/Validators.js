@@ -2,7 +2,10 @@
 module.exports = {
 	disableBlank,
 	numberOnly,
-	integerOnly
+	integerOnly,
+	functions: {
+		containsString
+	}
 };
 
 function disableBlank(val) {
@@ -22,4 +25,14 @@ function integerOnly(val) {
 	const num = Number(val);
 	if(num !== Math.trunc(num)) return "Response cannot contain decimals";
 	return true;
+}
+
+/**
+ * Generates a validator that resolves to true only if the substring is found in the value
+ * @param {string} str String that must be in the prompt answer
+ * @param {boolean} [caseSensitive = true] Whether the string search should be case-sensitive
+ */
+function containsString(str, caseSensitive = true) {
+	str = caseSensitive ? str : str.toLowerCase();
+	return ans => (caseSensitive ? ans : ans.toLowerCase()).includes(str) ? true : `Response must contain ${str}`;
 }
