@@ -1,5 +1,6 @@
 const Configurer = require("../Configurer.js");
 const Validators = require("../Validators.js");
+const Filters = require("../Filters.js");
 
 /**
  * Options for the Promptlet. Not every property is documented here. Options are passed to inquirer.js so additional properties and option can be found [here]{https://github.com/SBoudrias/Inquirer.js/#questions}
@@ -38,8 +39,17 @@ class Promptlet {
 		this.value = "<Incomplete>";
 		this.info = Object.assign({}, Promptlet.default, info);
 		this.optionName = optionName;
+		this.filters = [];
 		this.validators = [];
-		this.addValidator(Validators.disableBlank);
+		this.autoTrim = true;
+		this.allowBlank = true;
+		this.info.filter = async ans => {
+			let filteredAns = ans;
+			for(const filter of this.filters) {
+				filteredAns = await filter(filteredAns);
+			}
+			return filteredAns;
+		};
 		this.info.validate = async ans => {
 			for(const validator of this.validators) {
 				const valid = await validator(ans);
@@ -74,6 +84,28 @@ class Promptlet {
 	}
 
 	/**
+	 * Add a filter to the prompt. Will not add identical duplicates
+	 * @param {function} filter Filter function to add
+	 */
+	addFilter(filter) {
+		if(typeof filter !== "function") throw new TypeError("Function required");
+		if(!this.filters.includes(filter)) {
+			this.filters.push(filter);
+		}
+	}
+
+	/**
+	 * Remove a filter from the prompt. (Requires exact same function instance to remove)
+	 * @param {function} filter Filter function to remove
+	 */
+	removeFilter(filter) {
+		if(typeof filter !== "function") throw new TypeError("Function required");
+		if(this.filters.includes(filter)) {
+			this.filters.splice(this.filters.indexOf(filter), 1);
+		}
+	}
+
+	/**
 	 * Add a validator to the prompt. Will not add identical duplicates
 	 * @param {function} validator Validator function to add
 	 */
@@ -96,8 +128,17 @@ class Promptlet {
 	}
 
 	/**
-	 * Sets whether or not blank answers are allowed. Default is true
-	 * @param allow
+	 * Sets whether or not to automatically trim answers before validating. Defaults to true
+	 * @param {boolean} [allow = false] Determines whether to include the Filters.autotrim function as a filter
+	 */
+	set autoTrim(allow) {
+		if(allow) this.addFilter(Filters.autoTrim);
+		else this.removeFilter(Filters.autoTrim);
+	}
+
+	/**
+	 * Sets whether or not blank answers are allowed. Defaults to true
+	 * @param {boolean} [allow = false] Determines whether to include the Validators.disableBlank function as a validator
 	 */
 	set allowBlank(allow) {
 		if(allow) this.addValidator(Validators.disableBlank);
