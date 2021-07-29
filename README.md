@@ -10,8 +10,7 @@ Optionally, test to make sure the code works by running `npm run test` afterward
 Documentation can be generated after installation with the command `npm run docs` and viewed on localhost by running `npm run servedocs`
 
 # Promptlet info object structure
-## Excluding Inquirer's Question object properties
-
+##### Excluding Inquirer's Question object properties
 ```json
 {
 	"validators": [Functions/Validators.js exports],

@@ -24,6 +24,11 @@ class Promptlet {
 		// name: "none",
 		message: ""
 	};
+	filters = [];
+	validators = [];
+	prerequisites = []
+	satisfied = false;
+	value = "<Incomplete>";
 
 	/**
 	 * Instantiates a new Promptlet
@@ -34,13 +39,9 @@ class Promptlet {
 	 */
 	constructor(optionName, info, editable = false) {
 		if(typeof info.name !== "string") throw new TypeError("Name Property Required (Type: string)");
-		this.satisfied = false;
-		this.editable = Boolean(editable);
-		this.value = "<Incomplete>";
-		this.info = Object.assign({}, Promptlet.default, info);
 		this.optionName = optionName;
-		this.filters = [];
-		this.validators = [];
+		this.info = Object.assign({}, Promptlet.default, info);
+		this.editable = Boolean(editable);
 		this.autoTrim = true;
 		this.allowBlank = true;
 		this.info.filter = async ans => {
@@ -57,7 +58,6 @@ class Promptlet {
 			}
 			return true;
 		};
-		this.prerequisites = [];
 	}
 
 	/**
