@@ -1,5 +1,15 @@
 class Configurer {
 	/**
+	 * Default Inquirer Instance Configured
+	 * @type {function}
+	 */
+	static inquirerInstance = require("inquirer").createPromptModule();
+
+	constructor() {
+		throw new TypeError("Index is a static class. Please use Index.methodName instead of creating a new instance");
+	}
+
+	/**
 	 * Inquirer instance being used by the PromptSet
 	 * Either the inquirer.prompt function or the inquirer.createPromptModule()'s function
 	 * @static
@@ -16,16 +26,6 @@ class Configurer {
 	static set inquirer(newInquirer) {
 		if(typeof newInquirer !== "function") throw new TypeError(`Inquirer Prompt Function Expected. Received: ${typeof newInquirer}`);
 		Configurer.inquirerInstance = newInquirer;
-	}
-
-	/**
-	 * Default Inquirer Instance Configured
-	 * @type {function}
-	 */
-	static inquirerInstance = require("inquirer").createPromptModule();
-
-	constructor() {
-		throw new TypeError("Index is a static class. Please use Index.methodName instead of creating a new instance");
 	}
 }
 

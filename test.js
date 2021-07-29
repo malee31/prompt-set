@@ -1,6 +1,6 @@
 const PromptSet = require(".").PromptSet;
 
-const set = PromptSet.chain()
+const set = PromptSet()
 	.addNew("First Option", {
 		name: "Opt 1",
 		message: "Prompted Once"
@@ -15,6 +15,8 @@ const set = PromptSet.chain()
 	.addPrerequisite("Opt 1")
 	.removePrerequisite("Opt 1")
 	.setFinishMode(1);
+
+debugger;
 
 set.start().then(console.log).then(() => {
 	console.log(`PromptSet.toString(): ${set}`);

@@ -61,6 +61,32 @@ class Promptlet {
 	}
 
 	/**
+	 * Sets whether or not to automatically trim answers before validating. Defaults to true
+	 * @param {boolean} [allow = false] Determines whether to include the Filters.autotrim function as a filter
+	 */
+	set autoTrim(allow) {
+		if(allow) this.addFilter(Filters.autoTrim);
+		else this.removeFilter(Filters.autoTrim);
+	}
+
+	/**
+	 * Sets whether or not blank answers are allowed. Defaults to true
+	 * @param {boolean} [allow = false] Determines whether to include the Validators.disableBlank function as a validator
+	 */
+	set allowBlank(allow) {
+		if(allow) this.addValidator(Validators.disableBlank);
+		else this.removeValidator(Validators.disableBlank);
+	}
+
+	/**
+	 * Getter for Promptlet.name property
+	 * @return {string} Returns the name property of the Promptlet
+	 */
+	get name() {
+		return this.info.name;
+	}
+
+	/**
 	 * Adds a prerequisite that must be completed before this Promptlet can run
 	 * @param {string} newPrerequisite The name property of the prerequisite Promptlet
 	 */
@@ -125,42 +151,6 @@ class Promptlet {
 		if(this.validators.includes(validator)) {
 			this.validators.splice(this.validators.indexOf(validator), 1);
 		}
-	}
-
-	/**
-	 * Sets whether or not to automatically trim answers before validating. Defaults to true
-	 * @param {boolean} [allow = false] Determines whether to include the Filters.autotrim function as a filter
-	 */
-	set autoTrim(allow) {
-		if(allow) this.addFilter(Filters.autoTrim);
-		else this.removeFilter(Filters.autoTrim);
-	}
-
-	/**
-	 * Sets whether or not blank answers are allowed. Defaults to true
-	 * @param {boolean} [allow = false] Determines whether to include the Validators.disableBlank function as a validator
-	 */
-	set allowBlank(allow) {
-		if(allow) this.addValidator(Validators.disableBlank);
-		else this.removeValidator(Validators.disableBlank);
-	}
-
-	/**
-	 * Getter for Promptlet.name property
-	 * @return {string} Returns the name property of the Promptlet
-	 */
-	get name() {
-		return this.info.name;
-	}
-
-	/**
-	 * Creates and returns a new Promptlet instance
-	 * @static
-	 * @param {...*} args Arguments for the Promptlet constructor
-	 * @return {Promptlet} A new Promptlet instance
-	 */
-	static chain(...args) {
-		return new Promptlet(...args);
 	}
 
 	/**

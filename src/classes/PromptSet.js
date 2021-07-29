@@ -13,27 +13,19 @@ class PromptSet {
 	 * @type {Array<string>}
 	 */
 	static finishModes = ["aggressive", "confirm", "choice", "auto"];
-
-	/**
-	 * Getter for PromptSet.names property
-	 * @readonly
-	 * @return {string[]} Returns an array of the Promptlet names in the set
-	 */
-	get names() {
-		return Object.keys(this.set);
-	}
+	set = {};
+	default = 0;
+	satisfied = false;
+	autoclear = true;
+	requiredSet = [];
+	previous = undefined;
+	finishMode = PromptSet.finishModes[3];
 
 	/**
 	 * Instantiates a new PromptSet
 	 */
 	constructor() {
-		this.set = {};
-		this.default = 0;
-		this.satisfied = false;
-		this.autoclear = true;
-		this.requiredSet = [];
-		this.previous = undefined;
-		this.finishMode = PromptSet.finishModes[3];
+		attachPassthrough(this);
 		this.finishPrompt = new Promptlet("Done?",
 			{
 				name: "finished",
@@ -46,22 +38,12 @@ class PromptSet {
 	}
 
 	/**
-	 * Creates and returns a new Promptlet
-	 * @static
-	 * @param {...*} args Arguments for the Promptlet constructor
-	 * @return {Promptlet} A new PromptSet instance
+	 * Getter for PromptSet.names property
+	 * @readonly
+	 * @return {string[]} Returns an array of the Promptlet names in the set
 	 */
-	static Promptlet(...args) {
-		return new Promptlet(...args);
-	}
-
-	/**
-	 * Creates and returns a new PromptSet
-	 * @static
-	 * @return {PromptSet} A new PromptSet instance
-	 */
-	static chain() {
-		return new PromptSet();
+	get names() {
+		return Object.keys(this.set);
 	}
 
 	/**
@@ -70,7 +52,7 @@ class PromptSet {
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
 	 */
 	addNew(...constructorArgs) {
-		return this.add(PromptSet.Promptlet(...constructorArgs));
+		return this.add(new Promptlet(...constructorArgs));
 	}
 
 	/**
@@ -181,7 +163,7 @@ class PromptSet {
 
 	/**
 	 *
-	 * @param {string} [newPrevious] New value to set as previous. If provided, this will be returned. Else, PromptSet.previous will be returned
+	 * @param {string|Promptlet} [newPrevious] New value to set as previous. If provided, this will be returned. Else, PromptSet.previous will be returned
 	 * @param {boolean} [throwOnInvalid = true] Whether to throw an error on an undefined return value
 	 * @return {string} Returns the name of a Promptlet from newPrevious (if provided) or this.previous. May be undefined if PromptSet.previous is not set or if it has been removed
 	 */
@@ -254,6 +236,7 @@ class PromptSet {
 
 	/**
 	 * Returns whether or not to close the list (True after everything needed to be answered has been answered)
+	 * @async
 	 * @return {boolean} Whether to end execution
 	 */
 	async finished() {
@@ -385,6 +368,21 @@ class PromptSet {
 	 */
 	toString() {
 		return JSON.stringify(this.reduce());
+	}
+}
+
+// Modify the PromptSet prototype with passthrough functions
+const passthroughProperties = Object.getOwnPropertyNames(Promptlet.prototype)
+	.filter(prop => {
+		const details = Object.getOwnPropertyDescriptor(Promptlet.prototype, prop);
+		return !Object.getOwnPropertyNames(PromptSet.prototype).includes(prop) && !details.get && !details.set && typeof details.value === "function";
+	});
+
+function attachPassthrough(instance) {
+	for(const prop of passthroughProperties) {
+		Object.defineProperty(instance, prop, {
+			value: (...args) => instance.searchSet(instance.refreshPrevious())[prop](...args)
+		});
 	}
 }
 
