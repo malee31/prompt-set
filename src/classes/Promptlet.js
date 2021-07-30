@@ -3,7 +3,7 @@ const Validators = require("../Validators.js");
 const Filters = require("../Filters.js");
 
 /**
- * Options for the Promptlet. Not every property is documented here. Options are passed to inquirer.js so additional properties and option can be found [here]{https://github.com/SBoudrias/Inquirer.js/#questions}
+ * Options for the Promptlet. Not every property is documented here. Options are passed to inquirer.js so additional properties and option can be found [here]{@link https://github.com/SBoudrias/Inquirer.js/#questions}
  * @typedef {Object} PromptletOptions
  * @property {string} name Name for the Promptlet. Used as the key in PromptSet.reduce
  * @property {string} message Text displayed when the Promptlet is run
@@ -32,6 +32,8 @@ class Promptlet {
 
 	/**
 	 * Instantiates a new Promptlet
+	 * @class
+	 * @memberOf module:Prompt-Set
 	 * @throws {TypeError} Will throw if info.name is undefined or not a string
 	 * @param {string} optionName The string displayed on the list of prompts from PromptSet.selectPromptlet()
 	 * @param {PromptletOptions} info Object with all the prompt configurations passed to inquirer. See the 'inquirer' documentation on npm or Github for specific details. Name property required
@@ -88,9 +90,10 @@ class Promptlet {
 
 	/**
 	 * Adds a prerequisite that must be completed before this Promptlet can run
-	 * @param {string} newPrerequisite The name property of the prerequisite Promptlet
+	 * @param {string|Promptlet} newPrerequisite The name property of the prerequisite Promptlet
 	 */
 	addPrerequisite(newPrerequisite) {
+		if(newPrerequisite instanceof Promptlet) newPrerequisite = newPrerequisite.name;
 		newPrerequisite = newPrerequisite.trim();
 		if(!this.prerequisites.includes(newPrerequisite)) {
 			this.prerequisites.push(newPrerequisite);
@@ -100,9 +103,10 @@ class Promptlet {
 
 	/**
 	 * Removes a prerequisite that must be completed before this Promptlet can run
-	 * @param {string} removePrerequisite The name property of the prerequisite Promptlet
+	 * @param {string|Promptlet} removePrerequisite The name property of the prerequisite Promptlet
 	 */
 	removePrerequisite(removePrerequisite) {
+		if(removePrerequisite instanceof Promptlet) removePrerequisite = removePrerequisite.name;
 		removePrerequisite = removePrerequisite.trim();
 		if(this.prerequisites.includes(removePrerequisite)) {
 			this.prerequisites.splice(this.prerequisites.indexOf(removePrerequisite), 1);

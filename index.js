@@ -1,22 +1,31 @@
+/**
+ * Module that contains and exports all classes and functions of the Prompt-Set project
+ * @module Prompt-Set
+ */
+
+const PromptSet = require("./src/classes/PromptSet.js");
+const Promptlet = require("./src/classes/Promptlet.js");
+const Configurer = require("./src/Configurer.js");
+
 const allExports = {
 	classes: {
-		PromptSet: require("./src/classes/PromptSet.js"),
-		Promptlet: require("./src/classes/Promptlet.js")
+		PromptSet,
+		Promptlet
 	},
-	Configurer: require("./src/Configurer.js")
-};
+	Configurer,
 
-// Additional exports dependent on previous exports. Maybe this looks cleaner than constant = require() format?
-module.exports = Object.assign(module.exports, {
 	/**
 	 * Creates and returns a new PromptSet
-	 * @return {PromptSet}
+	 * @return {module:Prompt-Set.PromptSet}
 	 */
-	PromptSet: () => new allExports.classes.PromptSet(),
+	PromptSet: () => new PromptSet(),
+
 	/**
 	 * Creates and returns a new Promptlet
 	 * @param {...*} args Arguments for the Promptlet constructor
 	 * @return {Promptlet}
 	 */
-	Promptlet: (...args) => new allExports.classes.Promptlet(...args)
-});
+	Promptlet: (...args) => new Promptlet(...args)
+};
+
+module.exports = allExports;

@@ -1,7 +1,13 @@
 const Configurer = require("../Configurer.js");
 const Promptlet = require("./Promptlet.js");
 
-/** Class that manages and contains instances of Promptlets */
+/**
+ * Class that manages and contains instances of Promptlets
+ * @class
+ * @type PromptSet
+ * @name PromptSet
+ * @memberOf module:Prompt-Set
+ */
 class PromptSet {
 	/**
 	 * Valid finishing modes for the PromptSet
@@ -10,7 +16,7 @@ class PromptSet {
 	 * Choice: Add an option to close the list at the end after all prerequisites are met
 	 * Auto: Automatically stops execution and closes the list after prerequisites are met
 	 * @static
-	 * @type {Array<string>}
+	 * @type {string[]}
 	 */
 	static finishModes = ["aggressive", "confirm", "choice", "auto"];
 	set = {};
@@ -18,12 +24,14 @@ class PromptSet {
 	satisfied = false;
 	autoclear = true;
 	requiredSet = [];
+	/**
+	 * Most recently added or edited Promptlet. May be undefined if nothing has been added or if the added item was deleted
+	 * @type {Promptlet|undefined}
+	 */
 	previous = undefined;
 	finishMode = PromptSet.finishModes[3];
 
-	/**
-	 * Instantiates a new PromptSet
-	 */
+	/** Instantiates a new PromptSet */
 	constructor() {
 		attachPassthrough(this);
 		this.finishPrompt = new Promptlet("Done?",
@@ -37,10 +45,17 @@ class PromptSet {
 		this.finishPrompt.value = false;
 	}
 
+	clear() {
+		this.set = [];
+		this.requiredSet = [];
+		this.default = 0;
+		this.test = "lol"
+	}
+
 	/**
-	 * Getter for PromptSet.names property
+	 * Getter that returns an array of Promptlet names from the current set
 	 * @readonly
-	 * @return {string[]} Returns an array of the Promptlet names in the set
+	 * @type {string[]}
 	 */
 	get names() {
 		return Object.keys(this.set);
@@ -61,16 +76,11 @@ class PromptSet {
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
 	 */
 	add(set) {
-		if(set.constructor.name !== "Promptlet") throw "PromptSet.add() only accepts 'Promptlet' instances";
-
-		if(this.names.includes(set.name)) {
-			console.warn("Overwriting a prompt with an identical name");
-			this.remove(set.name);
-		}
+		if(set.constructor.name !== "Promptlet") throw new TypeError("PromptSet.add() only accepts 'Promptlet' instances");
+		if(this.names.includes(set.name)) console.warn("Overwriting a prompt with an identical name");
 
 		this.set[set.name] = set;
-		this.refreshPrevious(set.name, false);
-
+		this.refreshPrevious(set);
 		return this;
 	}
 
@@ -81,12 +91,7 @@ class PromptSet {
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
 	 */
 	remove(identifier) {
-		const removed = this.searchSet(identifier);
-
-		delete this.set[removed.name];
-		this.names.splice(this.names.indexOf(removed.name), 1);
-		if(this.previous === removed.name) this.previous = undefined;
-
+		delete this.set[this.resetPrevious(identifier).name];
 		return this;
 	}
 
@@ -97,11 +102,7 @@ class PromptSet {
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
 	 */
 	addPrerequisite(prerequisiteIdentifier, addToIdentifier) {
-		const addMe = this.searchSet(prerequisiteIdentifier);
-		const addTo = this.searchSet(this.refreshPrevious(addToIdentifier));
-
-		addTo.addPrerequisite(addMe.name);
-
+		this.refreshPrevious(addToIdentifier).addPrerequisite(prerequisiteIdentifier);
 		return this;
 	}
 
@@ -112,11 +113,7 @@ class PromptSet {
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
 	 */
 	removePrerequisite(removeIdentifier, removeFromIdentifier) {
-		const removeMe = this.searchSet(removeIdentifier);
-		const removeFrom = this.searchSet(this.refreshPrevious(removeFromIdentifier));
-
-		removeFrom.removePrerequisite(removeMe.name);
-
+		this.refreshPrevious(removeFromIdentifier).removePrerequisite(removeIdentifier);
 		return this;
 	}
 
@@ -126,7 +123,7 @@ class PromptSet {
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
 	 */
 	required(requiredIdentifier) {
-		const requireMe = this.searchSet(this.refreshPrevious(requiredIdentifier));
+		const requireMe = this.refreshPrevious(requiredIdentifier);
 		if(!this.requiredSet.includes(requireMe.name)) this.requiredSet.push(requireMe.name);
 
 		return this;
@@ -138,11 +135,8 @@ class PromptSet {
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
 	 */
 	optional(optionIdentifier) {
-		const requireMe = this.searchSet(this.refreshPrevious(optionIdentifier));
-		if(this.requiredSet.includes(requireMe.name)) {
-			this.requiredSet.slice(this.requiredSet.indexOf(optionIdentifier.name));
-			if(this.previous === requireMe.name) this.previous = undefined;
-		}
+		optionIdentifier = this.refreshPrevious(optionIdentifier);
+		if(this.requiredSet.includes(optionIdentifier.name)) this.requiredSet.splice(this.requiredSet.indexOf(optionIdentifier.name), 1);
 
 		return this;
 	}
@@ -153,7 +147,7 @@ class PromptSet {
 	 * @return {Promptlet} The searched Promptlet if found
 	 */
 	searchSet(identifier) {
-		if(identifier.constructor.name === "Promptlet") identifier = identifier.name;
+		if(identifier.constructor.name === Promptlet.name) identifier = identifier.name;
 
 		if(typeof identifier !== "string") throw new Error("Identifier must be a 'string' or 'Promptlet' instance");
 		if(!this.set[identifier]) throw new Error("Name not found in set");
@@ -162,18 +156,23 @@ class PromptSet {
 	}
 
 	/**
-	 *
-	 * @param {string|Promptlet} [newPrevious] New value to set as previous. If provided, this will be returned. Else, PromptSet.previous will be returned
-	 * @param {boolean} [throwOnInvalid = true] Whether to throw an error on an undefined return value
-	 * @return {string} Returns the name of a Promptlet from newPrevious (if provided) or this.previous. May be undefined if PromptSet.previous is not set or if it has been removed
+	 * Update or fetch the value of this.previous
+	 * @param {Promptlet|string} [newPrevious] New value to set as previous. Return value may vary depending on the type of this parameter
+	 * @return {Promptlet|undefined} Returns a Promptlet. If newPrevious is a Promptlet, it will be returned untouched. If it is as string, the Promptlet will be looked up automatically. If newPrevious is not provided, this.previous will be returned (Please see PromptSet.previous for details).
 	 */
-	refreshPrevious(newPrevious, throwOnInvalid = true) {
-		if(newPrevious?.constructor.name === "Promptlet") newPrevious = newPrevious.name;
-		if(typeof newPrevious === "string") this.previous = newPrevious;
+	refreshPrevious(newPrevious) {
+		return newPrevious ? this.previous = this.searchSet(newPrevious) : this.previous;
+	}
 
-		if(throwOnInvalid && typeof this.previous !== "string") throw new Error("No previous Promptlet name saved.\nNote: Previous is saved when a Promptlet is added or prerequisites are edited on the PromptSet and unsaved when the Promptlet is removed.");
-
-		return this.previous;
+	/**
+	 * Clear this.previous if it matches the targetPrevious
+	 * @param {Promptlet|string} targetPrevious Promptlet to assure is not equal to this.previous
+	 * @return {Promptlet} Returns targetPrevious as a Promptlet. If targetPrevious was a string, it will be looked up
+	 */
+	resetPrevious(targetPrevious) {
+		targetPrevious = this.searchSet(targetPrevious);
+		if(this.previous === targetPrevious) this.previous = undefined;
+		return targetPrevious;
 	}
 
 	/**
@@ -381,9 +380,13 @@ const passthroughProperties = Object.getOwnPropertyNames(Promptlet.prototype)
 function attachPassthrough(instance) {
 	for(const prop of passthroughProperties) {
 		Object.defineProperty(instance, prop, {
-			value: (...args) => instance.searchSet(instance.refreshPrevious())[prop](...args)
+			value: (...args) => {
+				instance.searchSet(instance.refreshPrevious())[prop](...args);
+				return instance;
+			}
 		});
 	}
 }
+
 
 module.exports = PromptSet;
