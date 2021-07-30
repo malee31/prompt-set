@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "docdash": "^1.2.0",
+    "http-server": "^0.12.3",
     "jsdoc": "^3.6.7"
   }
 }

@@ -12,3 +12,6 @@ docs/
 
 # Private Files
 .env
+
+# Testing Files and Scratch Files
+tests/
