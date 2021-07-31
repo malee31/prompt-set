@@ -34,7 +34,7 @@ class Promptlet {
 	 * @class
 	 * @classdesc Class that manages individual prompts and their responses. Wraps inquirer.prompt()
 	 * @alias Promptlet
-	 * @memberOf module:Prompt-Set
+	 * @memberOf module:Prompt-Set.classes
 	 * @throws {TypeError} Will throw if info.name is undefined or not a string
 	 * @param {string} optionName The string displayed on the list of prompts from PromptSet.selectPromptlet()
 	 * @param {PromptletOptions} info Object with all the prompt configurations passed to inquirer. See the 'inquirer' documentation on npm or Github for specific details. Name property required

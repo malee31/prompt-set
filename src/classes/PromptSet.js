@@ -57,9 +57,7 @@ class PromptSet {
 	 * @class
 	 * @classdesc Class that manages and contains instances of Promptlets
 	 * @alias PromptSet
-	 * @type PromptSet
-	 * @memberOf module:Prompt-Set
-	 * @static
+	 * @memberOf module:Prompt-Set.classes
 	 */
 	constructor() {
 		attachPassthrough(this);
