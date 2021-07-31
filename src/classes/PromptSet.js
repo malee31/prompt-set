@@ -1,37 +1,66 @@
 const Configurer = require("../Configurer.js");
 const Promptlet = require("./Promptlet.js");
 
-/**
- * Class that manages and contains instances of Promptlets
- * @class
- * @type PromptSet
- * @name PromptSet
- * @memberOf module:Prompt-Set
- */
 class PromptSet {
 	/**
-	 * Valid finishing modes for the PromptSet
-	 * Aggressive: Combination of 'confirm' and 'choice'
-	 * Confirm: Confirm after all prerequisites are met and every edit after that as well. Identical to auto if nothing is editable
-	 * Choice: Add an option to close the list at the end after all prerequisites are met
+	 * Valid finishing modes for the PromptSet<br>
+	 * Aggressive: Combination of 'confirm' and 'choice'<br>
+	 * Confirm: Confirm after all prerequisites are met and every edit after that as well. Identical to auto if nothing is editable<br>
+	 * Choice: Add an option to close the list at the end after all prerequisites are met<br>
 	 * Auto: Automatically stops execution and closes the list after prerequisites are met
 	 * @static
+	 * @readonly
 	 * @type {string[]}
 	 */
 	static finishModes = ["aggressive", "confirm", "choice", "auto"];
+	/**
+	 * The complete set of Promptlets in the PromptSet. Stored in {PromptletName: Promptlet} format
+	 * @type {Object.<string, Promptlet>}
+	 */
 	set = {};
+	/**
+	 * Where to place the cursor in the PromptSet's list of Promptlets when started
+	 * Used to save the current position and return to it after the prompt is answered
+	 * @type {string|number}
+	 */
 	default = 0;
+	/**
+	 * Is true when all necessary Promptlets have been answered
+	 * @type {boolean}
+	 */
 	satisfied = false;
+	/**
+	 * Whether to automatically clear the console after each prompt
+	 * Inquirer will usually do it automatically regardless but this is just in case
+	 * @type {boolean}
+	 */
 	autoclear = true;
+	/**
+	 * Array of Promptlet names that must be answered before exiting
+	 * @type {string[]}
+	 */
 	requiredSet = [];
 	/**
 	 * Most recently added or edited Promptlet. May be undefined if nothing has been added or if the added item was deleted
 	 * @type {Promptlet|undefined}
 	 */
 	previous = undefined;
+	/**
+	 * A string from PromptSet.finishModes. Determines when and how to ask the user if they are finished yet.
+	 * See [PromptSet.finishModes]{@link PromptSet#finishModes} for more details
+	 * @type {string}
+	 */
 	finishMode = PromptSet.finishModes[3];
 
-	/** Instantiates a new PromptSet */
+	/**
+	 * Instantiates a new PromptSet
+	 * @class
+	 * @classdesc Class that manages and contains instances of Promptlets
+	 * @alias PromptSet
+	 * @type PromptSet
+	 * @memberOf module:Prompt-Set
+	 * @static
+	 */
 	constructor() {
 		attachPassthrough(this);
 		this.finishPrompt = new Promptlet("Done?",
@@ -45,13 +74,6 @@ class PromptSet {
 		this.finishPrompt.value = false;
 	}
 
-	clear() {
-		this.set = [];
-		this.requiredSet = [];
-		this.default = 0;
-		this.test = "lol"
-	}
-
 	/**
 	 * Getter that returns an array of Promptlet names from the current set
 	 * @readonly
@@ -59,6 +81,12 @@ class PromptSet {
 	 */
 	get names() {
 		return Object.keys(this.set);
+	}
+
+	clear() {
+		this.set = [];
+		this.requiredSet = [];
+		this.default = 0;
 	}
 
 	/**

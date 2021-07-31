@@ -1,5 +1,9 @@
 /**
  * @memberOf module:Prompt-Set
+ * @alias Configurer
+ * @type {Object}
+ * @property {function} inquirer
+ * @static
  */
 module.exports = {
 	/**

@@ -9,6 +9,10 @@ const Configurer = require("./src/Configurer.js");
 
 const allExports = {
 	classes: {
+		/**
+		 * @alias module:Prompt-Set.classes
+		 * @type {PromptSet}
+		 */
 		PromptSet,
 		Promptlet
 	},

@@ -11,7 +11,6 @@ const Filters = require("../Filters.js");
  * @property {*|function} [default] Value to use if blank answer is given or a function that returns a value to use
  */
 
-/** Class that manages individual prompts and their responses. Wraps inquirer.prompt() */
 class Promptlet {
 	/**
 	 * Default object template for the inquirer prompt function. Options passed to the Promptlet will overwrite these.
@@ -33,6 +32,8 @@ class Promptlet {
 	/**
 	 * Instantiates a new Promptlet
 	 * @class
+	 * @classdesc Class that manages individual prompts and their responses. Wraps inquirer.prompt()
+	 * @alias Promptlet
 	 * @memberOf module:Prompt-Set
 	 * @throws {TypeError} Will throw if info.name is undefined or not a string
 	 * @param {string} optionName The string displayed on the list of prompts from PromptSet.selectPromptlet()
