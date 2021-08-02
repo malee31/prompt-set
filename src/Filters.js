@@ -1,8 +1,9 @@
 /**
- * Built-in filters for Promptlets
+ * Built-in filters for Promptlets<br>
  * Can be added manually by importing this file or automatically through certain functions in Promptlets
- * @module Filters
- * @type {Object}
+ * @memberOf module:Prompt-Set
+ * @namespace Filters
+ * @static
  */
 module.exports = {
 	autoTrim,
@@ -16,6 +17,7 @@ module.exports = {
  * Whitespace trimming filter
  * @param {string} val Prompt answer to filter
  * @return {string} Filtered result
+ * @memberOf module:Prompt-Set.Filters
  */
 function autoTrim(val) {
 	return val.trim();
@@ -25,6 +27,7 @@ function autoTrim(val) {
  * Double whitespace remover filter
  * @param {string} val Prompt answer to filter
  * @return {string} Filtered result
+ * @memberOf module:Prompt-Set.Filters
  */
 function singleSpace(val) {
 	return val.replace(/\s+/g, " ");
@@ -34,6 +37,7 @@ function singleSpace(val) {
  * Caps lock filter: Sets all characters to uppercase
  * @param {string} val Prompt answer to filter
  * @return {string} Filtered result
+ * @memberOf module:Prompt-Set.Filters
  */
 function capsLock(val) {
 	return val.toUpperCase();
@@ -43,6 +47,7 @@ function capsLock(val) {
  * Lowercase filter: Sets all characters to lowercase
  * @param {string} val Prompt answer to filter
  * @return {string} Filtered result
+ * @memberOf module:Prompt-Set.Filters
  */
 function lowerCase(val) {
 	return val.toLowerCase();

@@ -57,7 +57,7 @@ class PromptSet {
 	 * @class
 	 * @classdesc Class that manages and contains instances of Promptlets
 	 * @alias PromptSet
-	 * @memberOf module:Prompt-Set.classes
+	 * @memberOf module:Prompt-Set.Classes
 	 */
 	constructor() {
 		attachPassthrough(this);
@@ -241,10 +241,10 @@ class PromptSet {
 
 	/**
 	 * Toggle or set whether or not to confirm that the user is done before terminating the PromptSet
-	 * @throws {RangeError} Index out of bounds for finish mode array
-	 * @throws {TypeError} Throws if mode is not a string, a number, or a number string
 	 * @param {string|number} [mode = PromptSet.finishModes[3]] The finish mode to use. See [PromptSet#finishModes]{@link PromptSet.finishModes} for details
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
+	 * @throws {RangeError} Index out of bounds for finish mode array
+	 * @throws {TypeError} Throws if mode is not a string, a number, or a number string
 	 */
 	setFinishMode(mode) {
 		if(typeof mode === "number" || !isNaN(Number(mode))) {

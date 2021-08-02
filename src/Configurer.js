@@ -1,4 +1,5 @@
 /**
+ * Object responsible for configuring how Promptlets and PromptSets work
  * @memberOf module:Prompt-Set
  * @namespace Configurer
  * @static
@@ -10,7 +11,8 @@ module.exports = {
 	 * There are no safety checks if you choose to replace it so swap out at your own risk<br>
 	 * The only reason this is usually swapped out is you would like to use some plugins for Inquirer although that can be done by modifying the existing instance
 	 * @memberOf module:Prompt-Set.Configurer
-	 * @type {function}
+	 * @function
+	 * @param {Object} questions See the inquirer documentation for more details
 	 */
 	inquirer: require("inquirer").createPromptModule(),
 };
