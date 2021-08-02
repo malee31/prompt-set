@@ -1,4 +1,4 @@
-const Configurer = require("../Configurer.js");
+const { inquirer } = require("../Configurer.js");
 const Promptlet = require("./Promptlet.js");
 
 class PromptSet {
@@ -19,8 +19,9 @@ class PromptSet {
 	 */
 	set = {};
 	/**
-	 * Where to place the cursor in the PromptSet's list of Promptlets when started
-	 * Used to save the current position and return to it after the prompt is answered
+	 * Where to place the cursor in the PromptSet's list of Promptlets when started<br>
+	 * Used to save the current position and return to it after the prompt is answered<br>
+	 * Can be the index on a list or the name property of a Promptlet
 	 * @type {string|number}
 	 */
 	default = 0;
@@ -30,7 +31,7 @@ class PromptSet {
 	 */
 	satisfied = false;
 	/**
-	 * Whether to automatically clear the console after each prompt
+	 * Whether to automatically clear the console after each prompt<br>
 	 * Inquirer will usually do it automatically regardless but this is just in case
 	 * @type {boolean}
 	 */
@@ -46,11 +47,17 @@ class PromptSet {
 	 */
 	previous = undefined;
 	/**
-	 * A string from PromptSet.finishModes. Determines when and how to ask the user if they are finished yet.
+	 * A string from PromptSet.finishModes. Determines when and how to ask the user if they are finished yet.<br>
 	 * See [PromptSet.finishModes]{@link PromptSet#finishModes} for more details
 	 * @type {string}
 	 */
 	finishMode = PromptSet.finishModes[3];
+
+	/**
+	 * Confirmation Promptlet that determines whether to end execution or continue for edits or optional prompts
+	 * @type {Promptlet}
+	 */
+	finishPrompt;
 
 	/**
 	 * Instantiates a new PromptSet
@@ -69,6 +76,10 @@ class PromptSet {
 				default: false
 			}
 		);
+		/**
+		 * Answer for the finishing confirmation Promptlet
+		 * @type {boolean}
+		 */
 		this.finishPrompt.value = false;
 	}
 
@@ -82,7 +93,7 @@ class PromptSet {
 	}
 
 	clear() {
-		this.set = [];
+		this.set = {};
 		this.requiredSet = [];
 		this.default = 0;
 	}
@@ -102,7 +113,7 @@ class PromptSet {
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
 	 */
 	add(set) {
-		if(set.constructor.name !== "Promptlet") throw new TypeError("PromptSet.add() only accepts 'Promptlet' instances");
+		if(!set instanceof Promptlet) throw new TypeError("PromptSet.add() only accepts 'Promptlet' instances");
 		if(this.names.includes(set.name)) console.warn("Overwriting a prompt with an identical name");
 
 		this.set[set.name] = set;
@@ -111,7 +122,7 @@ class PromptSet {
 	}
 
 	/**
-	 * Remove a Promptlet from the PromptSet
+	 * Remove a Promptlet from the PromptSet<br>
 	 * Warning: Will break prompts that have the removed Promptlet as a prerequisite
 	 * @param identifier Identifier for the Promptlet to remove from the PromptSet (Promptlet must be in set)
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
@@ -173,7 +184,7 @@ class PromptSet {
 	 * @return {Promptlet} The searched Promptlet if found
 	 */
 	searchSet(identifier) {
-		if(identifier.constructor.name === Promptlet.name) identifier = identifier.name;
+		if(identifier instanceof Promptlet) identifier = identifier.name;
 
 		if(typeof identifier !== "string") throw new Error("Identifier must be a 'string' or 'Promptlet' instance");
 		if(!this.set[identifier]) throw new Error("Name not found in set");
@@ -329,7 +340,7 @@ class PromptSet {
 	async selectPromptlet() {
 		const choiceList = this.generateList();
 		if(choiceList.length === 1) return this.set[choiceList[0].value];
-		const chosenPrompt = await Configurer.inquirer({
+		const chosenPrompt = await inquirer({
 			type: "list",
 			name: "PromptletSelected",
 			default: this.default,
@@ -344,6 +355,10 @@ class PromptSet {
 		return this.default === this.finishPrompt.name ? this.finishPrompt : this.set[this.default];
 	}
 
+	/**
+	 * Generates the list of prompts that are displayed for selection
+	 * @return {Object.<name: string, value: string>[]}
+	 */
 	generateList() {
 		const list = this.names.map(val => {
 			const set = this.set[val];
@@ -366,7 +381,7 @@ class PromptSet {
 	}
 
 	/**
-	 * Collects the values of every Promptlet into an Object.
+	 * Collects the values of every Promptlet into an Object.<br>
 	 * Note: Unanswered Promptlets have a value of "<Incomplete>"
 	 * @return {Object} All results in "name: value" pairs
 	 */
@@ -396,13 +411,21 @@ class PromptSet {
 	}
 }
 
-// Modify the PromptSet prototype with passthrough functions
+/**
+ * All the method property names of the Promptlet prototype
+ * @inner
+ * @type {string[]}
+ */
 const passthroughProperties = Object.getOwnPropertyNames(Promptlet.prototype)
 	.filter(prop => {
 		const details = Object.getOwnPropertyDescriptor(Promptlet.prototype, prop);
 		return !Object.getOwnPropertyNames(PromptSet.prototype).includes(prop) && !details.get && !details.set && typeof details.value === "function";
 	});
 
+/**
+ * Modifies the PromptSet prototype with passthrough functions for the this.previous Promptlet instance of each PromptSet
+ * @param {PromptSet} instance The PromptSet being modified with the passthrough functions
+ */
 function attachPassthrough(instance) {
 	for(const prop of passthroughProperties) {
 		Object.defineProperty(instance, prop, {
