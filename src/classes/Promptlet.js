@@ -23,10 +23,34 @@ class Promptlet {
 		// name: "none",
 		message: ""
 	};
+	/**
+	 * Array of filter functions to pass prompt answers through to be altered<br>
+	 * Function output must be a string. Outputs will be used as the input to the next function in the array
+	 * @type {function[]}
+	 */
 	filters = [];
+	/**
+	 * Array of validator functions for prompt answers<br>
+	 * Each function will be called in order until the end of the array or until an error or error message is returned instead of true<br>
+	 * Return a string to display an error message, true to continue, or throw an error to crash
+	 * @type {function[]}
+	 */
 	validators = [];
+	/**
+	 * Array with a list of names from Promptlets in a PromptSet that must be answered before this instance can be asked
+	 * @type {string[]}
+	 */
 	prerequisites = []
+	/**
+	 * Whether this Promptlet has been answered satisfactorily yet
+	 * @type {boolean}
+	 */
 	satisfied = false;
+	/**
+	 * The answer given to the Promptlet<br>
+	 * Typeof value depends on the type of prompt being used and the output of the filters in that order
+	 * @type {string|number|boolean|*}
+	 */
 	value = "<Incomplete>";
 
 	/**
@@ -42,10 +66,30 @@ class Promptlet {
 	 */
 	constructor(optionName, info, editable = false) {
 		if(typeof info.name !== "string") throw new TypeError("Name Property Required (Type: string)");
+		/**
+		 * Text displayed for this Promptlet on the PromptSet option list
+		 * @type {string}
+		 */
 		this.optionName = optionName;
+		/**
+		 * Object containing all the data needed to start an inquirer prompt. Requires name property
+		 * @type {PromptletOptions|Object}
+		 */
 		this.info = Object.assign({}, Promptlet.default, info);
+		/**
+		 * Whether the question can be answered again and edited after the initial prompt
+		 * @type {boolean}
+		 */
 		this.editable = Boolean(editable);
+		/**
+		 * Whether to automatically use the built-in trim filter
+		 * @type {boolean}
+		 */
 		this.autoTrim = true;
+		/**
+		 * Whether to automatically use the built-in disallow blank validator
+		 * @type {boolean}
+		 */
 		this.allowBlank = true;
 		this.info.filter = async ans => {
 			let filteredAns = ans;

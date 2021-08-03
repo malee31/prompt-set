@@ -76,10 +76,6 @@ class PromptSet {
 				default: false
 			}
 		);
-		/**
-		 * Answer for the finishing confirmation Promptlet
-		 * @type {boolean}
-		 */
 		this.finishPrompt.value = false;
 	}
 
@@ -357,7 +353,7 @@ class PromptSet {
 
 	/**
 	 * Generates the list of prompts that are displayed for selection
-	 * @return {Object.<name: string, value: string>[]}
+	 * @return {Array.Object.<string, string>}
 	 */
 	generateList() {
 		const list = this.names.map(val => {
@@ -413,7 +409,6 @@ class PromptSet {
 
 /**
  * All the method property names of the Promptlet prototype
- * @inner
  * @type {string[]}
  */
 const passthroughProperties = Object.getOwnPropertyNames(Promptlet.prototype)
