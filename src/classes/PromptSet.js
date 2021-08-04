@@ -68,14 +68,13 @@ class PromptSet {
 	 */
 	constructor() {
 		attachPassthrough(this);
-		this.finishPrompt = new Promptlet("Done?",
-			{
-				name: "finished",
-				message: "Confirm that you are finished (Default: No)",
-				type: "confirm",
-				default: false
-			}
-		);
+		this.finishPrompt = new Promptlet({
+			optionName: "Done?",
+			name: "finished",
+			message: "Confirm that you are finished (Default: No)",
+			type: "confirm",
+			default: false
+		});
 		this.finishPrompt.value = false;
 	}
 
@@ -96,11 +95,13 @@ class PromptSet {
 
 	/**
 	 * Creates a new Promptlet and immediately adds it to the PromptSet
-	 * @param {...*} constructorArgs Arguments passed to the Promptlet constructor
+	 * @param {PromptletOptions|PromptletOptions[]} constructorArgs Argument passed to the Promptlet constructor. If this is an array, it will be looped through recursively from first to last
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
 	 */
-	addNew(...constructorArgs) {
-		return this.add(new Promptlet(...constructorArgs));
+	addNew(constructorArgs) {
+		if(!Array.isArray(constructorArgs)) constructorArgs = [constructorArgs];
+		constructorArgs.forEach(arg => this.add(new Promptlet(arg)));
+		return this;
 	}
 
 	/**

@@ -1,16 +1,31 @@
 const PromptSet = require(".").PromptSet;
 
 const set = PromptSet()
-	.addNew("First Option", {
+	.addNew({
+		optionName: "First Option",
 		name: "Opt 1",
-		message: "Prompted Once"
-	}, true).addNew("Second Option", {
+		message: "Prompted Once",
+		editable: true
+	}).addNew({
+		optionName: "Second Option",
 		name: "Opt 2",
 		message: "Prompted Twice"
-	}).addNew("Third Option", {
+	}).addNew({
+		optionName: "Third Option",
 		name: "Opt 3",
 		message: "Prompted Thrice"
-	})
+	}).addNew([
+		{
+			optionName: "Fourth Option",
+			name: "Opt 4",
+			message: "Array added"
+		},
+		{
+			optionName: "Fifth Option",
+			name: "Opt 5",
+			message: "Array Added Part 2"
+		}
+	])
 	.addPrerequisite("Opt 2")
 	.addPrerequisite("Opt 1")
 	.removePrerequisite("Opt 1")

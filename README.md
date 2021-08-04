@@ -13,8 +13,14 @@ Documentation can be generated after installation with the command `npm run docs
 ##### Excluding Inquirer's Question object properties
 ```json
 {
+	"optionName": string,
+	"name": string,
+	"message": string,
+	"type": string (See inquirer documentation)
 	"validators": [Functions/Validators.js exports],
 	"filters": [Functions/Filters.js exports],
-	"prerequisites": [Name strings (Will not be double checked for existance)]
+	"prerequisites": [Name strings (Will not be double checked for existance)],
+	"default": string|number|boolean|function,
+	"required": boolean
 }
 ```

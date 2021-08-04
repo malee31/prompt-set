@@ -5,10 +5,12 @@ const Filters = require("../Filters.js");
 /**
  * Options for the Promptlet. Not every property is documented here. Options are passed to inquirer.js so additional properties and option can be found [here]{@link https://github.com/SBoudrias/Inquirer.js/#questions}
  * @typedef {Object} PromptletOptions
+ * @property {string} optionName The string displayed on the list of prompts from PromptSet.selectPromptlet()
  * @property {string} name Name for the Promptlet. Used as the key in PromptSet.reduce
  * @property {string} message Text displayed when the Promptlet is run
  * @property {string} [type = "input"] Type of [inquirer.js prompt]{@link https://github.com/SBoudrias/Inquirer.js/#prompt} to display
- * @property {*|function} [default] Value to use if blank answer is given or a function that returns a value to use
+ * @property {string|number|boolean|function} [default] Value to use if blank answer is given or a function that returns a value to use
+ * @property {boolean} [editable = false] Whether the prompt can be selected and answered again after being completed once
  */
 
 class Promptlet {
@@ -21,7 +23,8 @@ class Promptlet {
 	static default = {
 		type: "input",
 		// name: "none",
-		message: ""
+		message: "",
+		editable: false
 	};
 	/**
 	 * Array of filter functions to pass prompt answers through to be altered<br>
@@ -59,18 +62,16 @@ class Promptlet {
 	 * @classdesc Class that manages individual prompts and their responses. Wraps inquirer.prompt()
 	 * @alias Promptlet
 	 * @memberOf module:Prompt-Set.Classes
-	 * @param {string} optionName The string displayed on the list of prompts from PromptSet.selectPromptlet()
 	 * @param {PromptletOptions} info Object with all the prompt configurations passed to inquirer. See the 'inquirer' documentation on npm or Github for specific details. Name property required
-	 * @param {boolean} [editable = false] Whether the prompt can be selected and answered again after being completed once
 	 * @throws {TypeError} Will throw if info.name is undefined or not a string
 	 */
-	constructor(optionName, info, editable = false) {
+	constructor(info) {
 		if(typeof info.name !== "string") throw new TypeError("Name Property Required (Type: string)");
 		/**
 		 * Text displayed for this Promptlet on the PromptSet option list
 		 * @type {string}
 		 */
-		this.optionName = optionName;
+		this.optionName = info.optionName;
 		/**
 		 * Object containing all the data needed to start an inquirer prompt. Requires name property
 		 * @type {PromptletOptions|Object}
@@ -80,7 +81,7 @@ class Promptlet {
 		 * Whether the question can be answered again and edited after the initial prompt
 		 * @type {boolean}
 		 */
-		this.editable = Boolean(editable);
+		this.editable = Boolean(info.editable);
 		/**
 		 * Whether to automatically use the built-in trim filter
 		 * @type {boolean}
