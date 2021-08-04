@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Home - Documentation</title>
+    <title>src/Filters.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,56 +34,72 @@
 
 <div id="main">
     
+    <h1 class="page-title">src/Filters.js</h1>
+    
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Built-in filters for Promptlets&lt;br>
+ * Can be added manually by importing this file or automatically through certain functions in Promptlets
+ * @memberOf module:Prompt-Set
+ * @namespace Filters
+ * @static
+ */
+module.exports = {
+	autoTrim,
+	singleSpace,
+	capsLock,
+	upperCase: capsLock,
+	lowerCase
+};
 
-
-    <section class="package">
-        <h3> </h3>		
-    </section>
-
-
-
-
-
-
-
-
-
-    
-
-
-
-    <section class="readme usertext">
-        <article><h1>Prompt Set</h1>
-<p>Create setup prompts for users that can be gone through in any order of their choosing as long as some prerequisites are met.<br>
-Helpful for setting up a list of environment variables and prompting credentials from a user.</p>
-<h1>Installation</h1>
-<p>To install Prompt Set, simply clone this repository and run <code>npm install</code>.<br>
-Optionally, test to make sure the code works by running <code>npm run test</code> afterwards.</p>
-<h1>Documentation</h1>
-<p>Documentation can be generated after installation with the command <code>npm run docs</code> and viewed on localhost by running <code>npm run servedocs</code></p>
-<h1>Promptlet info object structure</h1>
-<h5>Excluding Inquirer's Question object properties</h5>
-<pre class="prettyprint source lang-json"><code>{
-	&quot;optionName&quot;: string,
-	&quot;name&quot;: string,
-	&quot;message&quot;: string,
-	&quot;type&quot;: string (See inquirer documentation)
-	&quot;validators&quot;: [Functions/Validators.js exports],
-	&quot;filters&quot;: [Functions/Filters.js exports],
-	&quot;prerequisites&quot;: [Name strings (Will not be double checked for existance)],
-	&quot;default&quot;: string|number|boolean|function,
-	&quot;required&quot;: boolean
+/**
+ * Whitespace trimming filter
+ * @param {string} val Prompt answer to filter
+ * @return {string} Filtered result
+ * @memberOf module:Prompt-Set.Filters
+ */
+function autoTrim(val) {
+	return val.trim();
 }
-</code></pre></article>
+
+/**
+ * Double whitespace remover filter
+ * @param {string} val Prompt answer to filter
+ * @return {string} Filtered result
+ * @memberOf module:Prompt-Set.Filters
+ */
+function singleSpace(val) {
+	return val.replace(/\s+/g, " ");
+}
+
+/**
+ * Caps lock filter: Sets all characters to uppercase
+ * @param {string} val Prompt answer to filter
+ * @return {string} Filtered result
+ * @memberOf module:Prompt-Set.Filters
+ */
+function capsLock(val) {
+	return val.toUpperCase();
+}
+
+/**
+ * Lowercase filter: Sets all characters to lowercase
+ * @param {string} val Prompt answer to filter
+ * @return {string} Filtered result
+ * @memberOf module:Prompt-Set.Filters
+ */
+function lowerCase(val) {
+	return val.toLowerCase();
+}</code></pre>
+        </article>
     </section>
-
-
 
 
 

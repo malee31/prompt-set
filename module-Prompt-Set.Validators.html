@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>Validators - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Promptlet.html">Promptlet</a><ul class='methods'><li data-type='method'><a href="Promptlet.html#addFilter">addFilter</a></li><li data-type='method'><a href="Promptlet.html#addPrerequisite">addPrerequisite</a></li><li data-type='method'><a href="Promptlet.html#addValidator">addValidator</a></li><li data-type='method'><a href="Promptlet.html#execute">execute</a></li><li data-type='method'><a href="Promptlet.html#removeFilter">removeFilter</a></li><li data-type='method'><a href="Promptlet.html#removePrerequisite">removePrerequisite</a></li><li data-type='method'><a href="Promptlet.html#removeValidator">removeValidator</a></li></ul></li><li><a href="PromptSet.html">PromptSet</a><ul class='methods'><li data-type='method'><a href="PromptSet.html#add">add</a></li><li data-type='method'><a href="PromptSet.html#addNew">addNew</a></li><li data-type='method'><a href="PromptSet.html#addPrerequisite">addPrerequisite</a></li><li data-type='method'><a href="PromptSet.html#clearConsole">clearConsole</a></li><li data-type='method'><a href="PromptSet.html#finished">finished</a></li><li data-type='method'><a href="PromptSet.html#generateList">generateList</a></li><li data-type='method'><a href="PromptSet.html#isSatisfied">isSatisfied</a></li><li data-type='method'><a href="PromptSet.html#optional">optional</a></li><li data-type='method'><a href="PromptSet.html#preSatisfied">preSatisfied</a></li><li data-type='method'><a href="PromptSet.html#reduce">reduce</a></li><li data-type='method'><a href="PromptSet.html#refreshPrevious">refreshPrevious</a></li><li data-type='method'><a href="PromptSet.html#remove">remove</a></li><li data-type='method'><a href="PromptSet.html#removePrerequisite">removePrerequisite</a></li><li data-type='method'><a href="PromptSet.html#required">required</a></li><li data-type='method'><a href="PromptSet.html#resetPrevious">resetPrevious</a></li><li data-type='method'><a href="PromptSet.html#searchSet">searchSet</a></li><li data-type='method'><a href="PromptSet.html#selectPromptlet">selectPromptlet</a></li><li data-type='method'><a href="PromptSet.html#setFinishMode">setFinishMode</a></li><li data-type='method'><a href="PromptSet.html#start">start</a></li><li data-type='method'><a href="PromptSet.html#toString">toString</a></li></ul></li></ul><h3>Modules</h3><ul><li><a href="module-Prompt-Set.html">Prompt-Set</a><ul class='methods'><li data-type='method'><a href="module-Prompt-Set.html#.Promptlet">Promptlet</a></li><li data-type='method'><a href="module-Prompt-Set.html#.PromptSet">PromptSet</a></li></ul></li></ul><h3>Namespaces</h3><ul><li><a href="module-Prompt-Set.Configurer.html">Configurer</a><ul class='methods'><li data-type='method'><a href="module-Prompt-Set.Configurer.html#.inquirer">inquirer</a></li></ul></li><li><a href="module-Prompt-Set.Filters.html">Filters</a><ul class='methods'><li data-type='method'><a href="module-Prompt-Set.Filters.html#.autoTrim">autoTrim</a></li><li data-type='method'><a href="module-Prompt-Set.Filters.html#.capsLock">capsLock</a></li><li data-type='method'><a href="module-Prompt-Set.Filters.html#.lowerCase">lowerCase</a></li><li data-type='method'><a href="module-Prompt-Set.Filters.html#.singleSpace">singleSpace</a></li></ul></li><li><a href="module-Prompt-Set.Validators.html">Validators</a><ul class='methods'><li data-type='method'><a href="module-Prompt-Set.Validators.html#.containsString">containsString</a></li><li data-type='method'><a href="module-Prompt-Set.Validators.html#.disableBlank">disableBlank</a></li><li data-type='method'><a href="module-Prompt-Set.Validators.html#.integerOnly">integerOnly</a></li><li data-type='method'><a href="module-Prompt-Set.Validators.html#.numberOnly">numberOnly</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#attachPassthrough">attachPassthrough</a></li><li><a href="global.html#passthroughProperties">passthroughProperties</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Validators</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+            <span class="ancestors"><a href="module-Prompt-Set.html">Prompt-Set</a>.</span>
+        
+        Validators
+        </h2>
+        
+    
+</header>
+
+<article>
+    
+        <div class="container-overview">
+        
+            
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_Validators.js.html">src/Validators.js</a>, <a href="src_Validators.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+            
+                <div class="description usertext"><p>Built-in validators for Promptlets<br>
+Can be added manually by importing this file or automatically through certain functions in Promptlets</p></div>
+            
+
+            
+        
+        </div>
+    
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id=".containsString"><span class="type-signature">(static) </span>containsString<span class="signature">(str, caseSensitive<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_Validators.js.html">src/Validators.js</a>, <a href="src_Validators.js.html#line60">line 60</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Generates a validator that resolves to true only if a specific substring is found in the input</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>str</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>String that must be in the prompt answer</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>caseSensitive</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>true</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether the string search should be case-sensitive</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".disableBlank"><span class="type-signature">(static) </span>disableBlank<span class="signature">(val)</span><span class="type-signature"> &rarr; {string|boolean}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_Validators.js.html">src/Validators.js</a>, <a href="src_Validators.js.html#line23">line 23</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Validator that disables blank inputs</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>val</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Prompt answer to validate</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Returns true if valid and a string as an error message otherwise</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+|
+
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".integerOnly"><span class="type-signature">(static) </span>integerOnly<span class="signature">(val)</span><span class="type-signature"> &rarr; {string|boolean}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_Validators.js.html">src/Validators.js</a>, <a href="src_Validators.js.html#line46">line 46</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Validator that disables non-integer inputs</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>val</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Prompt answer to validate</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Returns true if valid and a string as an error message otherwise</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+|
+
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".numberOnly"><span class="type-signature">(static) </span>numberOnly<span class="signature">(val)</span><span class="type-signature"> &rarr; {string|boolean}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_Validators.js.html">src/Validators.js</a>, <a href="src_Validators.js.html#line34">line 34</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Validator that disables non-number inputs</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>val</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Prompt answer to validate</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Returns true if valid and a string as an error message otherwise</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+|
+
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a> on Wed Aug 04 2021 14:24:32 GMT-0700 (Pacific Daylight Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+
+</body>
+</html>

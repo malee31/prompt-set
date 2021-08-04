@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Home - Documentation</title>
+    <title>src/Validators.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,56 +34,81 @@
 
 <div id="main">
     
+    <h1 class="page-title">src/Validators.js</h1>
+    
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Built-in validators for Promptlets&lt;br>
+ * Can be added manually by importing this file or automatically through certain functions in Promptlets
+ * @memberOf module:Prompt-Set
+ * @namespace Validators
+ * @static
+ */
+module.exports = {
+	disableBlank,
+	numberOnly,
+	integerOnly,
+	functions: {
+		containsString
+	}
+};
 
-
-    <section class="package">
-        <h3> </h3>		
-    </section>
-
-
-
-
-
-
-
-
-
-    
-
-
-
-    <section class="readme usertext">
-        <article><h1>Prompt Set</h1>
-<p>Create setup prompts for users that can be gone through in any order of their choosing as long as some prerequisites are met.<br>
-Helpful for setting up a list of environment variables and prompting credentials from a user.</p>
-<h1>Installation</h1>
-<p>To install Prompt Set, simply clone this repository and run <code>npm install</code>.<br>
-Optionally, test to make sure the code works by running <code>npm run test</code> afterwards.</p>
-<h1>Documentation</h1>
-<p>Documentation can be generated after installation with the command <code>npm run docs</code> and viewed on localhost by running <code>npm run servedocs</code></p>
-<h1>Promptlet info object structure</h1>
-<h5>Excluding Inquirer's Question object properties</h5>
-<pre class="prettyprint source lang-json"><code>{
-	&quot;optionName&quot;: string,
-	&quot;name&quot;: string,
-	&quot;message&quot;: string,
-	&quot;type&quot;: string (See inquirer documentation)
-	&quot;validators&quot;: [Functions/Validators.js exports],
-	&quot;filters&quot;: [Functions/Filters.js exports],
-	&quot;prerequisites&quot;: [Name strings (Will not be double checked for existance)],
-	&quot;default&quot;: string|number|boolean|function,
-	&quot;required&quot;: boolean
+/**
+ * Validator that disables blank inputs
+ * @param {string} val Prompt answer to validate
+ * @return {string|boolean} Returns true if valid and a string as an error message otherwise
+ * @memberOf module:Prompt-Set.Validators
+ */
+function disableBlank(val) {
+	if(val.trim().length === 0) return "Response cannot be blank";
+	return true;
 }
-</code></pre></article>
+
+/**
+ * Validator that disables non-number inputs
+ * @param {string} val Prompt answer to validate
+ * @return {string|boolean} Returns true if valid and a string as an error message otherwise
+ * @memberOf module:Prompt-Set.Validators
+ */
+function numberOnly(val) {
+	const num = Number(val);
+	if(isNaN(num)) return "Response is not a number";
+	return true;
+}
+
+/**
+ * Validator that disables non-integer inputs
+ * @param {string} val Prompt answer to validate
+ * @return {string|boolean} Returns true if valid and a string as an error message otherwise
+ * @memberOf module:Prompt-Set.Validators
+ */
+function integerOnly(val) {
+	const isNumber = numberOnly(val);
+	if(isNumber !== true) return isNumber;
+	const num = Number(val);
+	if(num !== Math.trunc(num)) return "Response cannot contain decimals";
+	return true;
+}
+
+/**
+ * Generates a validator that resolves to true only if a specific substring is found in the input
+ * @param {string} str String that must be in the prompt answer
+ * @param {boolean} [caseSensitive = true] Whether the string search should be case-sensitive
+ * @memberOf module:Prompt-Set.Validators
+ */
+function containsString(str, caseSensitive = true) {
+	str = caseSensitive ? str : str.toLowerCase();
+	return ans => (caseSensitive ? ans : ans.toLowerCase()).includes(str) || `Response must contain ${str}`;
+}</code></pre>
+        </article>
     </section>
-
-
 
 
 

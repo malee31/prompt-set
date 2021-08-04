@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Home - Documentation</title>
+    <title>Configurer - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,56 +34,250 @@
 
 <div id="main">
     
+    <h1 class="page-title">Configurer</h1>
+    
 
     
 
 
 
+
+<section>
+
+<header>
+    
+        <h2>
+            <span class="ancestors"><a href="module-Prompt-Set.html">Prompt-Set</a>.</span>
+        
+        Configurer
+        </h2>
+        
+    
+</header>
+
+<article>
+    
+        <div class="container-overview">
+        
+            
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_Configurer.js.html">src/Configurer.js</a>, <a href="src_Configurer.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+            
+                <div class="description usertext"><p>Object responsible for configuring how Promptlets and PromptSets work</p></div>
+            
+
+            
+        
+        </div>
+    
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id=".inquirer"><span class="type-signature">(static) </span>inquirer<span class="signature">(questions)</span><span class="type-signature"></span></h4>
+
     
 
 
-    <section class="package">
-        <h3> </h3>		
-    </section>
 
 
+<dl class="details">
 
-
-
-
-
-
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_Configurer.js.html">src/Configurer.js</a>, <a href="src_Configurer.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
 
     
 
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
 
 
-    <section class="readme usertext">
-        <article><h1>Prompt Set</h1>
-<p>Create setup prompts for users that can be gone through in any order of their choosing as long as some prerequisites are met.<br>
-Helpful for setting up a list of environment variables and prompting credentials from a user.</p>
-<h1>Installation</h1>
-<p>To install Prompt Set, simply clone this repository and run <code>npm install</code>.<br>
-Optionally, test to make sure the code works by running <code>npm run test</code> afterwards.</p>
-<h1>Documentation</h1>
-<p>Documentation can be generated after installation with the command <code>npm run docs</code> and viewed on localhost by running <code>npm run servedocs</code></p>
-<h1>Promptlet info object structure</h1>
-<h5>Excluding Inquirer's Question object properties</h5>
-<pre class="prettyprint source lang-json"><code>{
-	&quot;optionName&quot;: string,
-	&quot;name&quot;: string,
-	&quot;message&quot;: string,
-	&quot;type&quot;: string (See inquirer documentation)
-	&quot;validators&quot;: [Functions/Validators.js exports],
-	&quot;filters&quot;: [Functions/Filters.js exports],
-	&quot;prerequisites&quot;: [Name strings (Will not be double checked for existance)],
-	&quot;default&quot;: string|number|boolean|function,
-	&quot;required&quot;: boolean
-}
-</code></pre></article>
-    </section>
 
 
+
+<div class="description usertext">
+    <p>The default Inquirer prompt function instance used by PromptSets and Promptlets.<br>
+This will either be the inquirer.prompt function or the returned function from inquirer.createPromptModule()<br>
+There are no safety checks if you choose to replace it so swap out at your own risk<br>
+The only reason this is usually swapped out is you would like to use some plugins for Inquirer although that can be done by modifying the existing instance</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>questions</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>See the inquirer documentation for more details</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

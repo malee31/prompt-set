@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>Global - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Promptlet.html">Promptlet</a><ul class='methods'><li data-type='method'><a href="Promptlet.html#addFilter">addFilter</a></li><li data-type='method'><a href="Promptlet.html#addPrerequisite">addPrerequisite</a></li><li data-type='method'><a href="Promptlet.html#addValidator">addValidator</a></li><li data-type='method'><a href="Promptlet.html#execute">execute</a></li><li data-type='method'><a href="Promptlet.html#removeFilter">removeFilter</a></li><li data-type='method'><a href="Promptlet.html#removePrerequisite">removePrerequisite</a></li><li data-type='method'><a href="Promptlet.html#removeValidator">removeValidator</a></li></ul></li><li><a href="PromptSet.html">PromptSet</a><ul class='methods'><li data-type='method'><a href="PromptSet.html#add">add</a></li><li data-type='method'><a href="PromptSet.html#addNew">addNew</a></li><li data-type='method'><a href="PromptSet.html#addPrerequisite">addPrerequisite</a></li><li data-type='method'><a href="PromptSet.html#clearConsole">clearConsole</a></li><li data-type='method'><a href="PromptSet.html#finished">finished</a></li><li data-type='method'><a href="PromptSet.html#generateList">generateList</a></li><li data-type='method'><a href="PromptSet.html#isSatisfied">isSatisfied</a></li><li data-type='method'><a href="PromptSet.html#optional">optional</a></li><li data-type='method'><a href="PromptSet.html#preSatisfied">preSatisfied</a></li><li data-type='method'><a href="PromptSet.html#reduce">reduce</a></li><li data-type='method'><a href="PromptSet.html#refreshPrevious">refreshPrevious</a></li><li data-type='method'><a href="PromptSet.html#remove">remove</a></li><li data-type='method'><a href="PromptSet.html#removePrerequisite">removePrerequisite</a></li><li data-type='method'><a href="PromptSet.html#required">required</a></li><li data-type='method'><a href="PromptSet.html#resetPrevious">resetPrevious</a></li><li data-type='method'><a href="PromptSet.html#searchSet">searchSet</a></li><li data-type='method'><a href="PromptSet.html#selectPromptlet">selectPromptlet</a></li><li data-type='method'><a href="PromptSet.html#setFinishMode">setFinishMode</a></li><li data-type='method'><a href="PromptSet.html#start">start</a></li><li data-type='method'><a href="PromptSet.html#toString">toString</a></li></ul></li></ul><h3>Modules</h3><ul><li><a href="module-Prompt-Set.html">Prompt-Set</a><ul class='methods'><li data-type='method'><a href="module-Prompt-Set.html#.Promptlet">Promptlet</a></li><li data-type='method'><a href="module-Prompt-Set.html#.PromptSet">PromptSet</a></li></ul></li></ul><h3>Namespaces</h3><ul><li><a href="module-Prompt-Set.Configurer.html">Configurer</a><ul class='methods'><li data-type='method'><a href="module-Prompt-Set.Configurer.html#.inquirer">inquirer</a></li></ul></li><li><a href="module-Prompt-Set.Filters.html">Filters</a><ul class='methods'><li data-type='method'><a href="module-Prompt-Set.Filters.html#.autoTrim">autoTrim</a></li><li data-type='method'><a href="module-Prompt-Set.Filters.html#.capsLock">capsLock</a></li><li data-type='method'><a href="module-Prompt-Set.Filters.html#.lowerCase">lowerCase</a></li><li data-type='method'><a href="module-Prompt-Set.Filters.html#.singleSpace">singleSpace</a></li></ul></li><li><a href="module-Prompt-Set.Validators.html">Validators</a><ul class='methods'><li data-type='method'><a href="module-Prompt-Set.Validators.html#.containsString">containsString</a></li><li data-type='method'><a href="module-Prompt-Set.Validators.html#.disableBlank">disableBlank</a></li><li data-type='method'><a href="module-Prompt-Set.Validators.html#.integerOnly">integerOnly</a></li><li data-type='method'><a href="module-Prompt-Set.Validators.html#.numberOnly">numberOnly</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#attachPassthrough">attachPassthrough</a></li><li><a href="global.html#passthroughProperties">passthroughProperties</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Global</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+        
+        </h2>
+        
+    
+</header>
+
+<article>
+    
+        <div class="container-overview">
+        
+            
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+            
+
+            
+        
+        </div>
+    
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="passthroughProperties"><span class="type-signature">(constant) </span>passthroughProperties<span class="type-signature"> :Array.&lt;string></span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_classes_PromptSet.js.html">src/classes/PromptSet.js</a>, <a href="src_classes_PromptSet.js.html#line415">line 415</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>All the method property names of the Promptlet prototype</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Array.&lt;string></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="attachPassthrough"><span class="type-signature"></span>attachPassthrough<span class="signature">(instance)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_classes_PromptSet.js.html">src/classes/PromptSet.js</a>, <a href="src_classes_PromptSet.js.html#line425">line 425</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Modifies the PromptSet prototype with passthrough functions for the this.previous Promptlet instance of each PromptSet</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>instance</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="PromptSet.html">PromptSet</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The PromptSet being modified with the passthrough functions</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Type Definitions</h3>
+
+        
+                
+<h4 class="name" id="PromptletOptions">PromptletOptions</h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_classes_Promptlet.js.html">src/classes/Promptlet.js</a>, <a href="src_classes_Promptlet.js.html#line5">line 5</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>optionName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>The string displayed on the list of prompts from PromptSet.selectPromptlet()</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>Name for the Promptlet. Used as the key in PromptSet.reduce</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>message</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>Text displayed when the Promptlet is run</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>"input"</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Type of <a href="https://github.com/SBoudrias/Inquirer.js/#prompt">inquirer.js prompt</a> to display</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>default</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">number</span>
+|
+
+<span class="param-type">boolean</span>
+|
+
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>Value to use if blank answer is given or a function that returns a value to use</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>editable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Whether the prompt can be selected and answered again after being completed once</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<div class="description usertext">
+    <p>Options for the Promptlet. Not every property is documented here. Options are passed to inquirer.js so additional properties and option can be found <a href="https://github.com/SBoudrias/Inquirer.js/#questions">here</a></p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+            
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a> on Wed Aug 04 2021 14:24:32 GMT-0700 (Pacific Daylight Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+
+</body>
+</html>
