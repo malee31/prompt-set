@@ -99,8 +99,12 @@ class PromptSet {
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
 	 */
 	addNew(constructorArgs) {
-		if(!Array.isArray(constructorArgs)) constructorArgs = [constructorArgs];
-		constructorArgs.forEach(arg => this.add(new Promptlet(arg)));
+		if(Array.isArray(constructorArgs)) {
+			constructorArgs.forEach(args => this.addNew(args));
+			return this;
+		}
+
+		this.add(new Promptlet(constructorArgs));
 		return this;
 	}
 
@@ -114,6 +118,7 @@ class PromptSet {
 		if(this.names.includes(set.name)) console.warn("Overwriting a prompt with an identical name");
 
 		this.set[set.name] = set;
+		if(set.info.required) this.required(set);
 		this.refreshPrevious(set);
 		return this;
 	}
@@ -240,7 +245,7 @@ class PromptSet {
 	isSatisfied() {
 		for(const name in this.set) {
 			if(!this.set.hasOwnProperty(name)) continue;
-			if(!this.set[name].satisfied) {
+			if(this.requiredSet.includes(name) && !this.set[name].satisfied) {
 				return false;
 			}
 		}
@@ -354,7 +359,7 @@ class PromptSet {
 
 	/**
 	 * Generates the list of prompts that are displayed for selection
-	 * @return {Array.Object.<string, string>}
+	 * @return {Array<{name: string, value: string}>}
 	 */
 	generateList() {
 		const list = this.names.map(val => {

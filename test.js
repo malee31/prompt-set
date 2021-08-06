@@ -23,13 +23,15 @@ const set = PromptSet()
 		{
 			optionName: "Fifth Option",
 			name: "Opt 5",
-			message: "Array Added Part 2"
+			message: "Array Added Part 2",
+			prerequisites: ["Opt 3"],
+			required: true
 		}
 	])
 	.addPrerequisite("Opt 2")
 	.addPrerequisite("Opt 1")
 	.removePrerequisite("Opt 1")
-	.setFinishMode(1);
+	.setFinishMode(2);
 
 debugger;
 

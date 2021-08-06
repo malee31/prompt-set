@@ -3,58 +3,49 @@ const Validators = require("../Validators.js");
 const Filters = require("../Filters.js");
 
 /**
- * Options for the Promptlet. Not every property is documented here. Options are passed to inquirer.js so additional properties and option can be found [here]{@link https://github.com/SBoudrias/Inquirer.js/#questions}
+ * Options for the Promptlet. Not every property is documented here.<br>
+ * Some properties have been overridden: filter & validate (use addFilter() and addValidator() instead)<br>
+ * Options are passed to inquirer.js so additional properties and option can be found [here]{@link https://github.com/SBoudrias/Inquirer.js/#questions}
  * @typedef {Object} PromptletOptions
  * @property {string} optionName The string displayed on the list of prompts from PromptSet.selectPromptlet()
  * @property {string} name Name for the Promptlet. Used as the key in PromptSet.reduce
  * @property {string} message Text displayed when the Promptlet is run
  * @property {string} [type = "input"] Type of [inquirer.js prompt]{@link https://github.com/SBoudrias/Inquirer.js/#prompt} to display
  * @property {string|number|boolean|function} [default] Value to use if blank answer is given or a function that returns a value to use
+ * @property {string[]} [prerequisites] Array of Promptlet names. Promptlets with those names must be answered before this instance can run. (Note: Setting prerequisites with this property bypasses function that checks to make sure the Promptlets with these names exist)
+ * @property {function|function[]} [filter] Constructor-only shortcut property. All functions in the filter property will be passed to this.addFilter
+ * @property {function|function[]} [validate] Constructor-only shortcut property. All functions in the validate property will be passed to this.addValidator
+ * @property {boolean} [allowBlank = false] Constructor-only shortcut property for setter Promptlet.allowBlank
+ * @property {boolean} [autoTrim = false] Constructor-only shortcut property for setter Promptlet.autoTrim
+ * @property {string} [value = "<Incomplete>"] Constructor-only shortcut property for forcefully setting a value for Promptlet.value without running it first
  * @property {boolean} [editable = false] Whether the prompt can be selected and answered again after being completed once
  */
 
 class Promptlet {
 	/**
-	 * Default object template for the inquirer prompt function. Options passed to the Promptlet will overwrite these.
-	 * The name property will be ignored on the default if set.
-	 * @static
-	 * @type {Object}
+	 * Default object template for the inquirer prompt function. Options passed to the Promptlet will overwrite these.<br>
+	 * The name property will be ignored on the default if set.<br>
+	 * No longer static due to arrays
+	 * @type {PromptletOptions}
 	 */
-	static default = {
+	default = {
 		type: "input",
-		// name: "none",
-		message: "",
+		name: undefined,
+		message: undefined,
+		optionName: undefined,
+		prerequisites: [],
+		validate: [],
+		filter: [],
+		required: false,
+		allowBlank: false,
+		autoTrim: true,
+		value: "<Incomplete>",
 		editable: false
 	};
-	/**
-	 * Array of filter functions to pass prompt answers through to be altered<br>
-	 * Function output must be a string. Outputs will be used as the input to the next function in the array
-	 * @type {function[]}
-	 */
-	filters = [];
-	/**
-	 * Array of validator functions for prompt answers<br>
-	 * Each function will be called in order until the end of the array or until an error or error message is returned instead of true<br>
-	 * Return a string to display an error message, true to continue, or throw an error to crash
-	 * @type {function[]}
-	 */
-	validators = [];
-	/**
-	 * Array with a list of names from Promptlets in a PromptSet that must be answered before this instance can be asked
-	 * @type {string[]}
-	 */
-	prerequisites = []
-	/**
-	 * Whether this Promptlet has been answered satisfactorily yet
-	 * @type {boolean}
-	 */
-	satisfied = false;
-	/**
-	 * The answer given to the Promptlet<br>
-	 * Typeof value depends on the type of prompt being used and the output of the filters in that order
-	 * @type {string|number|boolean|*}
-	 */
-	value = "<Incomplete>";
+
+	// @formatter:off IDE likes to complain so ignore the following lines:
+	optionName; info; editable; value; satisfied; prerequisites; filters; validators;
+	// @formatter:on
 
 	/**
 	 * Instantiates a new Promptlet
@@ -65,7 +56,7 @@ class Promptlet {
 	 * @param {PromptletOptions} info Object with all the prompt configurations passed to inquirer. See the 'inquirer' documentation on npm or Github for specific details. Name property required
 	 * @throws {TypeError} Will throw if info.name is undefined or not a string
 	 */
-	constructor(info) {
+	constructor(info = {}) {
 		if(typeof info.name !== "string") throw new TypeError("Name Property Required (Type: string)");
 		/**
 		 * Text displayed for this Promptlet on the PromptSet option list
@@ -76,22 +67,54 @@ class Promptlet {
 		 * Object containing all the data needed to start an inquirer prompt. Requires name property
 		 * @type {PromptletOptions|Object}
 		 */
-		this.info = Object.assign({}, Promptlet.default, info);
+		this.info = Object.assign({}, this.default, info);
 		/**
 		 * Whether the question can be answered again and edited after the initial prompt
 		 * @type {boolean}
 		 */
-		this.editable = Boolean(info.editable);
+		this.editable = Boolean(this.info.editable);
+		/**
+		 * The answer given to the Promptlet<br>
+		 * Typeof value depends on the type of prompt being used and the output of the filters in that order
+		 * @type {string|number|boolean|*}
+		 */
+		this.value = this.info.value;
+		/**
+		 * Whether this Promptlet has been answered satisfactorily yet
+		 * @type {boolean}
+		 */
+		this.satisfied = false;
+		/**
+		 * Array with a list of names from Promptlets in a PromptSet that must be answered before this instance can be asked
+		 * @type {string[]}
+		 */
+		this.prerequisites = this.info.prerequisites;
+
+		/**
+		 * Array of filter functions to pass prompt answers through to be altered<br>
+		 * Function output must be a string. Outputs will be used as the input to the next function in the array
+		 * @type {function[]}
+		 */
+		this.filters = [];
+		/**
+		 * Array of validator functions for prompt answers<br>
+		 * Each function will be called in order until the end of the array or until an error or error message is returned instead of true<br>
+		 * Return a string to display an error message, true to continue, or throw an error to crash
+		 * @type {function[]}
+		 */
+		this.validators = [];
 		/**
 		 * Whether to automatically use the built-in trim filter
 		 * @type {boolean}
 		 */
-		this.autoTrim = true;
+		this.autoTrim = this.info.autoTrim;
 		/**
 		 * Whether to automatically use the built-in disallow blank validator
 		 * @type {boolean}
 		 */
-		this.allowBlank = true;
+		this.allowBlank = this.info.allowBlank;
+		this.addFilter(this.info.filter);
+		this.addValidator(this.info.validate);
 		this.info.filter = async ans => {
 			let filteredAns = ans;
 			for(const filter of this.filters) {
@@ -110,7 +133,7 @@ class Promptlet {
 
 	/**
 	 * Sets whether or not to automatically trim answers before validating. Defaults to true
-	 * @param {boolean} [allow = false] Determines whether to include the Filters.autotrim function as a filter
+	 * @param {boolean} [allow = false] Determines whether to include the Filters.autoTrim function as a filter
 	 */
 	set autoTrim(allow) {
 		if(allow) this.addFilter(Filters.autoTrim);
@@ -161,9 +184,13 @@ class Promptlet {
 
 	/**
 	 * Add a filter to the prompt. Will not add identical duplicates
-	 * @param {function} filter Filter function to add
+	 * @param {function|function[]} filter Filter function to add
 	 */
 	addFilter(filter) {
+		if(Array.isArray(filter)) {
+			filter.forEach(fil => this.addFilter(fil));
+			return;
+		}
 		if(typeof filter !== "function") throw new TypeError("Function required");
 		if(!this.filters.includes(filter)) {
 			this.filters.push(filter);
@@ -183,9 +210,13 @@ class Promptlet {
 
 	/**
 	 * Add a validator to the prompt. Will not add identical duplicates
-	 * @param {function} validator Validator function to add
+	 * @param {function|function[]} validator Validator function to add
 	 */
 	addValidator(validator) {
+		if(Array.isArray(validator)) {
+			validator.forEach(val => this.addValidator(val));
+			return;
+		}
 		if(typeof validator !== "function") throw new TypeError("Function required");
 		if(!this.validators.includes(validator)) {
 			this.validators.push(validator);
