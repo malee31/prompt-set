@@ -70,12 +70,12 @@ class PromptSet {
 		attachPassthrough(this);
 		this.finishPrompt = new Promptlet({
 			optionName: "Done?",
-			name: "finished",
+			name: "FINISH_PROMPT",
 			message: "Confirm that you are finished (Default: No)",
 			type: "confirm",
-			default: false
+			default: false,
+			value: false
 		});
-		this.finishPrompt.value = false;
 	}
 
 	/**
@@ -362,21 +362,11 @@ class PromptSet {
 	 * @return {Array<{name: string, value: string}>}
 	 */
 	generateList() {
-		const list = this.names.map(val => {
-			const set = this.set[val];
-			return {
-				name: `${set.satisfied ? (set.editable ? "✎ " : "✔ ") : (this.preSatisfied(set, true) ? "○ " : "⛝ ")}${set.optionName}`,
-				value: val
-			};
-		});
+		const list = this.names.map(val => this.set[val]).map(set => set.generateListing(this.preSatisfied(set)));
 
 		if(this.isSatisfied() && (this.finishMode === PromptSet.finishModes[0] || this.finishMode === PromptSet.finishModes[2])) {
 			this.finishPrompt.satisfied = false;
-
-			list.push({
-				name: `${this.preSatisfied(this.finishPrompt, true) ? "○ " : "⛝ "}${this.finishPrompt.optionName}`,
-				value: this.finishPrompt.name
-			});
+			list.push(this.finishPrompt.generateListing(this.preSatisfied(this.finishPrompt)));
 		}
 
 		return list;

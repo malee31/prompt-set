@@ -17,7 +17,7 @@ const Filters = require("../Filters.js");
  * @property {function|function[]} [validate] Constructor-only shortcut property. All functions in the validate property will be passed to this.addValidator
  * @property {boolean} [allowBlank = false] Constructor-only shortcut property for setter Promptlet.allowBlank
  * @property {boolean} [autoTrim = false] Constructor-only shortcut property for setter Promptlet.autoTrim
- * @property {string} [value = "<Incomplete>"] Constructor-only shortcut property for forcefully setting a value for Promptlet.value without running it first
+ * @property {string|boolean|number} [value = "<Incomplete>"] Constructor-only shortcut property for forcefully setting a value for Promptlet.value without running it first
  * @property {boolean} [editable = false] Whether the prompt can be selected and answered again after being completed once
  */
 
@@ -232,6 +232,18 @@ class Promptlet {
 		if(this.validators.includes(validator)) {
 			this.validators.splice(this.validators.indexOf(validator), 1);
 		}
+	}
+
+	/**
+	 * Generates the listing for this Promptlet through an Object for inquirer lists
+	 * @param {boolean} preSatisfied Whether the prerequisites have been satisfied (Cannot be automatically done internally by a Promptlet without a PromptSet)
+	 * @return {{name: string, value: string}} An entry for the PromptSet.selectPromptlet() function's prompt
+	 */
+	generateListing(preSatisfied) {
+		return {
+			name: `${this.satisfied ? (this.editable ? "✎ " : "✔ ") : (preSatisfied ? "○ " : "⛝ ")}${this.optionName}`,
+			value: this.name
+		};
 	}
 
 	/**
