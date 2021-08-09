@@ -239,7 +239,7 @@ class PromptSet {
 	}
 
 	/**
-	 * Returns true when all necessary Promptlets have been answered
+	 * Returns true when all required Promptlets have been answered
 	 * @return {boolean} Whether all necessary Promptlets have been answered
 	 */
 	isSatisfied() {
@@ -278,30 +278,26 @@ class PromptSet {
 	 * @return {boolean} Whether to end execution
 	 */
 	async finished() {
-		let finish = this.isSatisfied();
+		if(!this.isSatisfied()) return false;
 
-		if(finish && this.finishMode !== PromptSet.finishModes[3]) {
+		switch(this.finishMode) {
+			case PromptSet.finishModes[0]:
+			case PromptSet.finishModes[1]:
+				let finish = this.names.every(val => {
+					const set = this.set[val];
+					return set.satisfied && !set.editable;
+				});
+				if(finish) return true;
 
-			switch(this.finishMode) {
-				case PromptSet.finishModes[0]:
-				case PromptSet.finishModes[1]:
-					finish = this.names.every(val => {
-						const set = this.set[val];
-						return set.satisfied && !set.editable;
-					});
-					if(finish) break;
+				finish = await this.finishPrompt.execute();
+				this.clearConsole();
+				return finish;
 
-					finish = await this.finishPrompt.execute();
-					this.clearConsole();
-					break;
-				case PromptSet.finishModes[2]:
-					finish = this.finishPrompt.value;
-					break;
-			}
-
+			case PromptSet.finishModes[2]:
+				return this.finishPrompt.value;
+			case PromptSet.finishModes[3]:
+				return true;
 		}
-
-		return finish;
 	}
 
 	/**
@@ -309,7 +305,7 @@ class PromptSet {
 	 * @return {Promise<Object>} Returns a Promise that resolves to the result of [PromptSet.reduce]{@link PromptSet#reduce}
 	 */
 	start() {
-		if(this.names.length === 0) throw new Error("Cannot start an empty PromptSet");
+		if(this.names.length === 0) throw new RangeError("Cannot start an empty PromptSet");
 
 		return new Promise(async resolve => {
 			let skipCheck = false;
@@ -344,7 +340,7 @@ class PromptSet {
 		if(choiceList.length === 1) return this.set[choiceList[0].value];
 		const chosenPrompt = await inquirer({
 			type: "list",
-			name: "PromptletSelected",
+			name: "SELECTED_PROMPTLET",
 			default: this.default,
 			message: "Choose a prompt to answer",
 			choices: choiceList
@@ -352,7 +348,7 @@ class PromptSet {
 
 		this.clearConsole();
 
-		this.default = chosenPrompt["PromptletSelected"];
+		this.default = chosenPrompt["SELECTED_PROMPTLET"];
 
 		return this.default === this.finishPrompt.name ? this.finishPrompt : this.set[this.default];
 	}

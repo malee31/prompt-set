@@ -241,7 +241,7 @@ class Promptlet {
 	 */
 	generateListing(preSatisfied) {
 		return {
-			name: `${this.satisfied ? (this.editable ? "✎ " : "✔ ") : (preSatisfied ? "○ " : "⛝ ")}${this.optionName}`,
+			name: `${this.satisfied ? (this.editable ? "✎" : "✔") : (preSatisfied ? "○" : "⛝")} ${this.optionName}`,
 			value: this.name
 		};
 	}
@@ -255,6 +255,14 @@ class Promptlet {
 		this.value = (await Configurer.inquirer(this.info))[this.name];
 		this.satisfied = true;
 		return this.value;
+	}
+
+	/**
+	 * Returns basic data about the Promptlet as a string
+	 * @return {string} JSON with all the values as a string. Parse with JSON.parse() if needed or use for debugging
+	 */
+	toString() {
+		return `Promptlet <${this.name}>: ${this.info.type} | [${this.optionName}]\nMessage: ${this.info.message}\nStatus: [${this.satisfied ? "✔" : "⛝"} ${this.editable ? "✎" : ""}]\nValue: ${this.value}\nPrerequisites: ${this.prerequisites.join(" & ")}`;
 	}
 }
 
