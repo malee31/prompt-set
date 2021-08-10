@@ -18,6 +18,7 @@ const Filters = require("../Filters.js");
  * @property {boolean} [allowBlank = false] Constructor-only shortcut property for setter Promptlet.allowBlank
  * @property {boolean} [autoTrim = false] Constructor-only shortcut property for setter Promptlet.autoTrim
  * @property {string|boolean|number} [value = "<Incomplete>"] Constructor-only shortcut property for forcefully setting a value for Promptlet.value without running it first
+ * @property {boolean} [required = false] Whether this Promptlet MUST be answered before closing a PromptSet. Does nothing if Promptlet is run directly
  * @property {boolean} [editable = false] Whether the prompt can be selected and answered again after being completed once
  */
 
@@ -36,10 +37,10 @@ class Promptlet {
 		prerequisites: [],
 		validate: [],
 		filter: [],
-		required: false,
 		allowBlank: false,
 		autoTrim: true,
 		value: "<Incomplete>",
+		required: false,
 		editable: false
 	};
 
@@ -155,6 +156,20 @@ class Promptlet {
 	 */
 	get name() {
 		return this.info.name;
+	}
+
+	/**
+	 * Sets required property to true
+	 */
+	required() {
+		this.info.required = true;
+	}
+
+	/**
+	 * Sets required property to false
+	 */
+	optional() {
+		this.info.required = false;
 	}
 
 	/**

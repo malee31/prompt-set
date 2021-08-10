@@ -37,11 +37,6 @@ class PromptSet {
 	 */
 	autoclear = true;
 	/**
-	 * Array of Promptlet names that must be answered before exiting
-	 * @type {string[]}
-	 */
-	requiredSet = [];
-	/**
 	 * Most recently added or edited Promptlet. May be undefined if nothing has been added or if the added item was deleted
 	 * @type {Promptlet|undefined}
 	 */
@@ -89,7 +84,6 @@ class PromptSet {
 
 	clear() {
 		this.set = {};
-		this.requiredSet = [];
 		this.default = 0;
 	}
 
@@ -118,7 +112,6 @@ class PromptSet {
 		if(this.names.includes(set.name)) console.warn("Overwriting a prompt with an identical name");
 
 		this.set[set.name] = set;
-		if(set.info.required) this.required(set);
 		this.refreshPrevious(set);
 		return this;
 	}
@@ -153,30 +146,6 @@ class PromptSet {
 	 */
 	removePrerequisite(removeIdentifier, removeFromIdentifier) {
 		this.refreshPrevious(removeFromIdentifier).removePrerequisite(removeIdentifier);
-		return this;
-	}
-
-	/**
-	 * Makes a Promptlet answer required to finish
-	 * @param {string|Promptlet} [requiredIdentifier] Identifier for a Promptlet to make required (Promptlet must be in set). Will use PromptSet.previous by default
-	 * @return {PromptSet} Returns 'this' PromptSet for chaining
-	 */
-	required(requiredIdentifier) {
-		const requireMe = this.refreshPrevious(requiredIdentifier);
-		if(!this.requiredSet.includes(requireMe.name)) this.requiredSet.push(requireMe.name);
-
-		return this;
-	}
-
-	/**
-	 * Removes a Promptlet from the list of required answers
-	 * @param {string|Promptlet} [optionIdentifier] Identifier for a Promptlet to make optional. (Promptlet must be in set). Will use PromptSet.previous by default
-	 * @return {PromptSet} Returns 'this' PromptSet for chaining
-	 */
-	optional(optionIdentifier) {
-		optionIdentifier = this.refreshPrevious(optionIdentifier);
-		if(this.requiredSet.includes(optionIdentifier.name)) this.requiredSet.splice(this.requiredSet.indexOf(optionIdentifier.name), 1);
-
 		return this;
 	}
 
@@ -245,9 +214,8 @@ class PromptSet {
 	isSatisfied() {
 		for(const name in this.set) {
 			if(!this.set.hasOwnProperty(name)) continue;
-			if(this.requiredSet.includes(name) && !this.set[name].satisfied) {
-				return false;
-			}
+			const set = this.set[name];
+			if(set.info.required && !set.satisfied) return false;
 		}
 		return true;
 	}
