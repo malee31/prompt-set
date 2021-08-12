@@ -44,7 +44,7 @@ class Promptlet {
 		editable: false
 	};
 
-	// @formatter:off IDE likes to complain so ignore the following lines:
+	// @formatter:off IDE likes to complain so ignore the following line
 	optionName; info; editable; value; satisfied; prerequisites; filters; validators;
 	// @formatter:on
 

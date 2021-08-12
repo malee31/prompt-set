@@ -54,11 +54,11 @@ const allExports = {
 
 	/**
 	 * Creates and returns a new Promptlet
-	 * @param {...*} args Arguments for the Promptlet constructor
+	 * @param {PromptletOptions} options Arguments for the Promptlet constructor
 	 * @return {Promptlet}
 	 * @memberOf module:Prompt-Set
 	 */
-	Promptlet: (...args) => new Promptlet(...args)
+	Promptlet: (options) => new Promptlet(options)
 };
 
 module.exports = allExports;
