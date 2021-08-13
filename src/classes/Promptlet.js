@@ -7,7 +7,7 @@ const Filters = require("../Filters.js");
  * Some properties have been overridden: filter & validate (use addFilter() and addValidator() instead)<br>
  * Options are passed to inquirer.js so additional properties and option can be found [here]{@link https://github.com/SBoudrias/Inquirer.js/#questions}
  * @typedef {Object} PromptletOptions
- * @property {string} optionName The string displayed on the list of prompts from PromptSet.selectPromptlet()
+ * @property {string} [optionName] The string displayed on the list of prompts from PromptSet.selectPromptlet(). Required unless running a Promptlet by itself
  * @property {string} name Name for the Promptlet. Used as the key in PromptSet.reduce
  * @property {string} message Text displayed when the Promptlet is run
  * @property {string} [type = "input"] Type of [inquirer.js prompt]{@link https://github.com/SBoudrias/Inquirer.js/#prompt} to display
@@ -15,8 +15,8 @@ const Filters = require("../Filters.js");
  * @property {string[]} [prerequisites] Array of Promptlet names. Promptlets with those names must be answered before this instance can run. (Note: Setting prerequisites with this property bypasses function that checks to make sure the Promptlets with these names exist)
  * @property {function|function[]} [filter] Constructor-only shortcut property. All functions in the filter property will be passed to this.addFilter
  * @property {function|function[]} [validate] Constructor-only shortcut property. All functions in the validate property will be passed to this.addValidator
- * @property {boolean} [allowBlank = false] Constructor-only shortcut property for setter Promptlet.allowBlank
- * @property {boolean} [autoTrim = false] Constructor-only shortcut property for setter Promptlet.autoTrim
+ * @property {boolean} [allowBlank = true] Constructor-only shortcut property for setter Promptlet.allowBlank
+ * @property {boolean} [autoTrim = true] Constructor-only shortcut property for setter Promptlet.autoTrim
  * @property {string|boolean|number} [value = "<Incomplete>"] Constructor-only shortcut property for forcefully setting a value for Promptlet.value without running it first
  * @property {boolean} [required = false] Whether this Promptlet MUST be answered before closing a PromptSet. Does nothing if Promptlet is run directly
  * @property {boolean} [editable = false] Whether the prompt can be selected and answered again after being completed once
@@ -37,7 +37,7 @@ class Promptlet {
 		prerequisites: [],
 		validate: [],
 		filter: [],
-		allowBlank: false,
+		allowBlank: true,
 		autoTrim: true,
 		value: "<Incomplete>",
 		required: false,
