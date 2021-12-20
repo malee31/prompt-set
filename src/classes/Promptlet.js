@@ -146,8 +146,8 @@ class Promptlet {
 	 * @param {boolean} [allow = false] Determines whether to include the Validators.disableBlank function as a validator
 	 */
 	set allowBlank(allow) {
-		if(allow) this.addValidator(Validators.disableBlank);
-		else this.removeValidator(Validators.disableBlank);
+		if(allow) this.removeValidator(Validators.disableBlank);
+		else this.addValidator(Validators.disableBlank);
 	}
 
 	/**
@@ -262,11 +262,22 @@ class Promptlet {
 	}
 
 	/**
-	 * Runs the Promptlet and marks Promptlet.satisfied to true. Updates Promptlet.value
+	 * Temporary alias for start()
+	 * (execute was renamed to start)
+	 * @deprecated
 	 * @async
 	 * @return {Promise<string>} Resolves to the value entered when execution of inquirer finishes
 	 */
 	async execute() {
+		return await this.start();
+	}
+
+	/**
+	 * Runs the Promptlet and marks Promptlet.satisfied to true. Updates Promptlet.value
+	 * @async
+	 * @return {Promise<string>} Resolves to the value entered when execution of inquirer finishes
+	 */
+	async start() {
 		this.value = (await Configurer.inquirer(this.info))[this.name];
 		this.satisfied = true;
 		return this.value;

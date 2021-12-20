@@ -46,7 +46,7 @@ class PromptSet {
 	 * See [PromptSet.finishModes]{@link PromptSet#finishModes} for more details
 	 * @type {string}
 	 */
-	finishMode = PromptSet.finishModes[3];
+	finishMode = PromptSet.finishModes[2];
 
 	/**
 	 * Confirmation Promptlet that determines whether to end execution or continue for edits or optional prompts
@@ -294,6 +294,7 @@ class PromptSet {
 				this.clearConsole();
 			}
 
+			this.satisfied = true;
 			resolve(this.reduce());
 		});
 	}
