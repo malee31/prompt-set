@@ -118,7 +118,7 @@ class PromptSet {
 
 	/**
 	 * Remove a Promptlet from the PromptSet<br>
-	 * Warning: Will break prompts that have the removed Promptlet as a prerequisite
+	 * Warning: Will make Promptlets that have the removed Promptlet as a prerequisite no longer selectable
 	 * @param identifier Identifier for the Promptlet to remove from the PromptSet (Promptlet must be in set)
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
 	 */
@@ -130,7 +130,7 @@ class PromptSet {
 	/**
 	 * Adds a prerequisite Promptlet that must be completed before this one
 	 * @param {string|Promptlet} prerequisiteIdentifier Identifier for a prerequisite Promptlet (Promptlet must be in set)
-	 * @param {string|Promptlet} [addToIdentifier] Identifier for a Promptlet to add prerequisite to (Promptlet must be in set). Will use PromptSet.previous by default
+	 * @param {string|Promptlet} [addToIdentifier] Identifier for a Promptlet to add prerequisite to (Promptlet must be in set). Will use PromptSet.previous if not provided
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
 	 */
 	addPrerequisite(prerequisiteIdentifier, addToIdentifier) {
@@ -141,7 +141,7 @@ class PromptSet {
 	/**
 	 * Remove a prerequisite from a specific Promptlet
 	 * @param {string|Promptlet} removeIdentifier Identifier for a prerequisite Promptlet (Promptlet must be in set)
-	 * @param {string|Promptlet} [removeFromIdentifier] Identifier for a Promptlet to remove prerequisite from (Promptlet must be in set). Will use PromptSet.previous by default
+	 * @param {string|Promptlet} [removeFromIdentifier] Identifier for a Promptlet to remove prerequisite from (Promptlet must be in set). Will use PromptSet.previous if not provided
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
 	 */
 	removePrerequisite(removeIdentifier, removeFromIdentifier) {
@@ -241,7 +241,7 @@ class PromptSet {
 	}
 
 	/**
-	 * Returns whether or not to close the list (True after everything needed to be answered has been answered)
+	 * Returns whether to close the list (True after everything needed to be answered has been answered)
 	 * @async
 	 * @return {boolean} Whether to end execution
 	 */
@@ -375,6 +375,7 @@ class PromptSet {
 const passthroughProperties = Object.getOwnPropertyNames(Promptlet.prototype)
 	.filter(prop => {
 		const details = Object.getOwnPropertyDescriptor(Promptlet.prototype, prop);
+		// Allows all Promptlet member functions to be attached to the PromptSet as long as it is not overridden by a function in PromptSet
 		return !Object.getOwnPropertyNames(PromptSet.prototype).includes(prop) && !details.get && !details.set && typeof details.value === "function";
 	});
 

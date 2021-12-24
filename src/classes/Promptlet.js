@@ -26,10 +26,10 @@ class Promptlet {
 	/**
 	 * Default object template for the inquirer prompt function. Options passed to the Promptlet will overwrite these.<br>
 	 * The name property will be ignored on the default if set.<br>
-	 * No longer static due to arrays
+	 * No longer a static property due to arrays
 	 * @type {PromptletOptions}
 	 */
-	default = {
+	info = {
 		type: "input",
 		name: undefined,
 		message: undefined,
@@ -45,7 +45,7 @@ class Promptlet {
 	};
 
 	// @formatter:off IDE likes to complain so ignore the following line
-	optionName; info; editable; value; satisfied; prerequisites; filters; validators;
+	optionName; editable; value; satisfied; prerequisites; filters; validators;
 	// @formatter:on
 
 	/**
@@ -55,9 +55,9 @@ class Promptlet {
 	 * @alias Promptlet
 	 * @memberOf module:Prompt-Set.Classes
 	 * @param {PromptletOptions} info Object with all the prompt configurations passed to inquirer. See the 'inquirer' documentation on npm or Github for specific details. Name property required
-	 * @throws {TypeError} Will throw if info.name is undefined or not a string
+	 * @throws {TypeError} Will throw if info.name is not a string
 	 */
-	constructor(info = {}) {
+	constructor(info) {
 		if(typeof info.name !== "string") throw new TypeError("Name Property Required (Type: string)");
 		/**
 		 * Text displayed for this Promptlet on the PromptSet option list
@@ -68,7 +68,7 @@ class Promptlet {
 		 * Object containing all the data needed to start an inquirer prompt. Requires name property
 		 * @type {PromptletOptions|Object}
 		 */
-		this.info = Object.assign({}, this.default, info);
+		this.info = Object.assign(this.info, info);
 		/**
 		 * Whether the question can be answered again and edited after the initial prompt
 		 * @type {boolean}
