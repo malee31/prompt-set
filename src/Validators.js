@@ -47,7 +47,7 @@ function integerOnly(val) {
 	const isNumber = numberOnly(val);
 	if(isNumber !== true) return isNumber;
 	const num = Number(val);
-	if(num !== Math.trunc(num)) return "Response cannot contain decimals";
+	if(num !== Math.trunc(num)) return "Response is not a whole number";
 	return true;
 }
 
@@ -58,6 +58,11 @@ function integerOnly(val) {
  * @memberOf module:Prompt-Set.Validators
  */
 function containsString(str, caseSensitive = true) {
-	str = caseSensitive ? str : str.toLowerCase();
-	return ans => (caseSensitive ? ans : ans.toLowerCase()).includes(str) || `Response must contain ${str}`;
+	let matchStr = str;
+	if(caseSensitive) {
+		return ans => ans.includes(matchStr) || `Response must contain ${matchStr}`;
+	} else {
+		matchStr = str.toLowerCase();
+		return ans => ans.toLowerCase().includes(matchStr) || `Response must contain ${matchStr}`;
+	}
 }

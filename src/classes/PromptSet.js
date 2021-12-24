@@ -257,7 +257,7 @@ class PromptSet {
 				});
 				if(finish) return true;
 
-				finish = await this.finishPrompt.execute();
+				finish = await this.finishPrompt.start();
 				this.clearConsole();
 				return finish;
 
@@ -290,7 +290,7 @@ class PromptSet {
 
 				if(!this.preSatisfied(chosenPromptlet) || (chosenPromptlet === this.finishPrompt && this.finishMode === PromptSet.finishModes[0])) continue;
 
-				await chosenPromptlet.execute();
+				await chosenPromptlet.start();
 				this.clearConsole();
 			}
 
