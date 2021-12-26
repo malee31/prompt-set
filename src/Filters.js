@@ -52,3 +52,13 @@ function capsLock(val) {
 function lowerCase(val) {
 	return val.toLowerCase();
 }
+
+/**
+ * Uppercase filter: Sets all characters to uppercase
+ * @param {string} val Prompt answer to filter
+ * @return {string} Filtered result
+ * @memberOf module:Prompt-Set.Filters
+ */
+function upperCase(val) {
+	return val.toUpperCase();
+}
