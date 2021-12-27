@@ -45,7 +45,7 @@ class Promptlet {
 	};
 
 	// @formatter:off IDE likes to complain so ignore the following line
-	optionName; editable; value; satisfied; prerequisites; filters; validators;
+	optionName; editable; value; satisfied; prerequisites; filters; validators; postProcessors;
 	// @formatter:on
 
 	/**
@@ -104,6 +104,13 @@ class Promptlet {
 		 * @type {function[]}
 		 */
 		this.validators = [];
+		/**
+		 * Array of post-processor functions for prompt answers<br>
+		 * Each function will be called in order until the end of the array. Error handling must be handled by each individual function<br>
+		 * Each function should return something to pass to the next function or throw an error to crash
+		 * @type {function[]}
+		 */
+		this.postProcessors = [];
 		/**
 		 * Whether to automatically use the built-in trim filter
 		 * @type {boolean}
@@ -248,6 +255,31 @@ class Promptlet {
 			this.validators.splice(this.validators.indexOf(validator), 1);
 		}
 	}
+	/**
+	 * Add a post processor to the prompt. Will not add identical duplicates
+	 * @param {function|function[]} postProcessor Post processor function to add
+	 */
+	addPostProcessor(postProcessor) {
+		if(Array.isArray(postProcessor)) {
+			postProcessor.forEach(val => this.addValidator(val));
+			return;
+		}
+		if(typeof postProcessor !== "function") throw new TypeError("Function required");
+		if(!this.postProcessors.includes(postProcessor)) {
+			this.postProcessors.push(postProcessor);
+		}
+	}
+
+	/**
+	 * Remove a post processor from the prompt. (Requires exact same function instance to remove)
+	 * @param {function} postProcessor Post processor function to remove
+	 */
+	removePostProcessor(postProcessor) {
+		if(typeof postProcessor !== "function") throw new TypeError("Function required");
+		if(this.postProcessors.includes(postProcessor)) {
+			this.postProcessors.splice(this.postProcessors.indexOf(postProcessor), 1);
+		}
+	}
 
 	/**
 	 * Generates the listing for this Promptlet through an Object for inquirer lists
@@ -273,6 +305,14 @@ class Promptlet {
 	}
 
 	/**
+	 * Runs all the post processor functions with the current value
+	 */
+	async postProcess() {
+		for(const postProcessor of this.postProcessors) {
+			this.value = await postProcessor(this.value);
+		}
+	}
+	/**
 	 * Runs the Promptlet and marks Promptlet.satisfied to true. Updates Promptlet.value
 	 * @async
 	 * @return {Promise<string>} Resolves to the value entered when execution of inquirer finishes
@@ -280,6 +320,7 @@ class Promptlet {
 	async start() {
 		this.value = (await Configurer.inquirer(this.info))[this.name];
 		this.satisfied = true;
+		postProcess();
 		return this.value;
 	}
 
