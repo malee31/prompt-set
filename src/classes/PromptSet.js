@@ -24,7 +24,7 @@ class PromptSet {
 	 * Can be the index on a list or the name property of a Promptlet
 	 * @type {string|number}
 	 */
-	default = 0;
+	defaultPosition = 0;
 	/**
 	 * Is true when all necessary Promptlets have been answered
 	 * @type {boolean}
@@ -84,7 +84,7 @@ class PromptSet {
 
 	clear() {
 		this.set = {};
-		this.default = 0;
+		this.defaultPosition = 0;
 	}
 
 	/**
@@ -310,16 +310,16 @@ class PromptSet {
 		const chosenPrompt = await inquirer({
 			type: "list",
 			name: "SELECTED_PROMPTLET",
-			default: this.default,
+			default: this.defaultPosition,
 			message: "Choose a prompt to answer",
 			choices: choiceList
 		});
 
 		this.clearConsole();
 
-		this.default = chosenPrompt["SELECTED_PROMPTLET"];
+		this.defaultPosition = chosenPrompt["SELECTED_PROMPTLET"];
 
-		return this.default === this.finishPrompt.name ? this.finishPrompt : this.set[this.default];
+		return this.defaultPosition === this.finishPrompt.name ? this.finishPrompt : this.set[this.defaultPosition];
 	}
 
 	/**
@@ -327,11 +327,11 @@ class PromptSet {
 	 * @return {Array<{name: string, value: string}>}
 	 */
 	generateList() {
-		const list = this.names.map(val => this.set[val]).map(set => set.generateListing(this.preSatisfied(set)));
+		const list = this.names.map(val => this.set[val]).map(set => set.generateListing(this.preSatisfied(set, true)));
 
 		if(this.isSatisfied() && (this.finishMode === PromptSet.finishModes[0] || this.finishMode === PromptSet.finishModes[2])) {
 			this.finishPrompt.satisfied = false;
-			list.push(this.finishPrompt.generateListing(this.preSatisfied(this.finishPrompt)));
+			list.push(this.finishPrompt.generateListing(this.preSatisfied(this.finishPrompt, true)));
 		}
 
 		return list;

@@ -306,6 +306,7 @@ class Promptlet {
 
 	/**
 	 * Runs all the post processor functions with the current value
+	 * Modifies value property
 	 */
 	async postProcess() {
 		for(const postProcessor of this.postProcessors) {
@@ -319,14 +320,14 @@ class Promptlet {
 	 */
 	async start() {
 		this.value = (await Configurer.inquirer(this.info))[this.name];
+		await this.postProcess();
 		this.satisfied = true;
-		postProcess();
 		return this.value;
 	}
 
 	/**
 	 * Returns basic data about the Promptlet as a string
-	 * @return {string} JSON with all the values as a string. Parse with JSON.parse() if needed or use for debugging
+	 * @return {string} String detailing the current state of the Promptlet
 	 */
 	toString() {
 		return `Promptlet <${this.name}>: ${this.info.type} | [${this.optionName}]\nMessage: ${this.info.message}\nStatus: [${this.satisfied ? "✔" : "⛝"} ${this.editable ? "✎" : ""}]\nValue: ${this.value}\nPrerequisites: ${this.prerequisites.join(" & ")}`;
