@@ -4,6 +4,8 @@
   "description": "Create quick setup prompts for users that can be gone through in any order of their choosing as long as some prerequisites are met",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "edit": "node index.js true",
     "test": "node test.js",
     "docs": "jsdoc -c jsdoc.json",
     "servedocs": "npx http-server -c-1 ./docs"
@@ -21,7 +23,8 @@
     "prompt-set",
     "nodejs",
     "command-line",
-    "setup"
+    "setup",
+    "inquirer"
   ],
   "author": "Marvin Lee",
   "license": "ISC",
