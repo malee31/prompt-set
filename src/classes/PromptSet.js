@@ -1,18 +1,6 @@
 const { inquirer } = require("../Configurer.js");
 const Promptlet = require("./Promptlet.js");
 
-
-/**
- * All the method property names of the Promptlet prototype
- * @type {string[]}
- */
-const passthroughProperties = Object.getOwnPropertyNames(Promptlet.prototype)
-	.filter(prop => {
-		const details = Object.getOwnPropertyDescriptor(Promptlet.prototype, prop);
-		// Allows all Promptlet member functions to be attached to the PromptSet as long as it is not overridden by a function in PromptSet
-		return !Object.getOwnPropertyNames(PromptSet.prototype).includes(prop) && !details.get && !details.set && typeof details.value === "function";
-	});
-
 class PromptSet {
 	/**
 	 * Valid finishing modes for the PromptSet<br>
@@ -25,13 +13,23 @@ class PromptSet {
 	 * @type {string[]}
 	 */
 	static finishModes = ["aggressive", "confirm", "choice", "auto"];
+	/**
+	 * All the method property names of the Promptlet prototype
+	 * @type {string[]}
+	 */
+	static passthroughProperties = Object.getOwnPropertyNames(Promptlet.prototype)
+		.filter(prop => {
+			const details = Object.getOwnPropertyDescriptor(Promptlet.prototype, prop);
+			// Allows all Promptlet member functions to be attached to the PromptSet as long as it is not overridden by a function in PromptSet
+			return !Object.getOwnPropertyNames(PromptSet.prototype).includes(prop) && !details.get && !details.set && typeof details.value === "function";
+		});
 
 	/**
 	 * Modifies the PromptSet prototype with passthrough functions for the this.previous Promptlet instance of each PromptSet
 	 * @param {PromptSet} instance The PromptSet being modified with the passthrough functions
 	 */
 	static attachPassthrough(instance) {
-		for(const prop of passthroughProperties) {
+		for(const prop of PromptSet.passthroughProperties) {
 			Object.defineProperty(instance, prop, {
 				value: (...args) => {
 					instance.searchSet(instance.refreshPrevious())[prop](...args);
@@ -247,7 +245,7 @@ class PromptSet {
 	 * @return {boolean} Whether all necessary Promptlets have been answered
 	 */
 	isSatisfied() {
-		for(const promptlet in this.PromptletSet) {
+		for(const promptlet of this.PromptletSet) {
 			if(promptlet.info.required && !promptlet.satisfied) return false;
 		}
 		return true;
