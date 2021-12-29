@@ -287,7 +287,7 @@ class PromptSet {
 				});
 				if(finish) return true;
 
-				finish = await this.finishPrompt.start();
+				finish = await this.finishPrompt.start(this.reduce());
 				this.clearConsole();
 				return finish;
 
@@ -303,7 +303,7 @@ class PromptSet {
 	 * @return {Promise<Object>} Returns a Promise that resolves to the result of [PromptSet.reduce]{@link PromptSet#reduce}
 	 */
 	start() {
-		if(this.names.length === 0) throw new RangeError("Cannot start an empty PromptSet");
+		if(this.PromptletSet.length === 0) throw new RangeError("Cannot start an empty PromptSet");
 
 		return new Promise(async resolve => {
 			let skipCheck = false;
@@ -320,7 +320,7 @@ class PromptSet {
 
 				if(!this.preSatisfied(chosenPromptlet) || (chosenPromptlet === this.finishPrompt && this.finishMode === PromptSet.finishModes[0])) continue;
 
-				await chosenPromptlet.start();
+				await chosenPromptlet.start(this.reduce());
 				this.clearConsole();
 			}
 
@@ -369,11 +369,13 @@ class PromptSet {
 
 	/**
 	 * Collects the values of every Promptlet into an Object.<br>
-	 * Note: Unanswered Promptlets have a value of "<Incomplete>"
+	 * Note: Skips unanswered Promptlets
 	 * @return {Object} All results in "name: value" pairs
 	 */
 	reduce() {
-		return this.PromptletSet.reduce((acc, promptlet) => {
+		return this.PromptletSet
+			.filter(promptlet => promptlet.satisfied)
+			.reduce((acc, promptlet) => {
 			acc[promptlet.name] = promptlet.value;
 			return acc;
 		}, {});

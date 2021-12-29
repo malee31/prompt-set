@@ -123,16 +123,16 @@ class Promptlet {
 		this.allowBlank = this.info.allowBlank;
 		this.addFilter(this.info.filter);
 		this.addValidator(this.info.validate);
-		this.info.filter = async ans => {
+		this.info.filter = async(ans, answers) => {
 			let filteredAns = ans;
 			for(const filter of this.filters) {
-				filteredAns = await filter(filteredAns);
+				filteredAns = await filter(filteredAns, answers);
 			}
 			return filteredAns;
 		};
-		this.info.validate = async ans => {
+		this.info.validate = async(ans, answers) => {
 			for(const validator of this.validators) {
-				const valid = await validator(ans);
+				const valid = await validator(ans, answers);
 				if(valid !== true) return valid;
 			}
 			return true;
@@ -282,6 +282,17 @@ class Promptlet {
 	}
 
 	/**
+	 * Runs all the post processor functions with the current value
+	 * Modifies value property
+	 * @param {Object} [answers = {}] Object with all the previous Promptlet answers if run by a PromptSet
+	 */
+	async postProcess(answers = {}) {
+		for(const postProcessor of this.postProcessors) {
+			this.value = await postProcessor(this.value, answers);
+		}
+	}
+
+	/**
 	 * Generates the listing for this Promptlet through an Object for inquirer lists
 	 * @param {boolean} preSatisfied Whether the prerequisites have been satisfied (Cannot be automatically done internally by a Promptlet without a PromptSet)
 	 * @return {{name: string, value: string}} An entry for the PromptSet.selectPromptlet() function's prompt
@@ -298,29 +309,21 @@ class Promptlet {
 	 * (execute was renamed to start)
 	 * @deprecated
 	 * @async
+	 * @param {Object} [answers = {}] Object with all the previous Promptlet answers if run by a PromptSet
 	 * @return {Promise<string>} Resolves to the value entered when execution of inquirer finishes
 	 */
-	async execute() {
-		return await this.start();
-	}
-
-	/**
-	 * Runs all the post processor functions with the current value
-	 * Modifies value property
-	 */
-	async postProcess() {
-		for(const postProcessor of this.postProcessors) {
-			this.value = await postProcessor(this.value);
-		}
+	async execute(answers = {}) {
+		return await this.start(answers);
 	}
 	/**
 	 * Runs the Promptlet and marks Promptlet.satisfied to true. Updates Promptlet.value
 	 * @async
+	 * @param {Object} [answers = {}] Object with all the previous Promptlet answers if run by a PromptSet
 	 * @return {Promise<string>} Resolves to the value entered when execution of inquirer finishes
 	 */
-	async start() {
-		this.value = (await Configurer.inquirer(this.info))[this.name];
-		await this.postProcess();
+	async start(answers = {}) {
+		this.value = (await Configurer.inquirer(this.info, answers))[this.name];
+		await this.postProcess(answers);
 		this.satisfied = true;
 		return this.value;
 	}
