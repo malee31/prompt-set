@@ -15,6 +15,7 @@ class PromptSet {
 	static finishModes = ["aggressive", "confirm", "choice", "auto"];
 	/**
 	 * All the method property names of the Promptlet prototype
+	 * @static
 	 * @type {string[]}
 	 */
 	static passthroughProperties = Object.getOwnPropertyNames(Promptlet.prototype)
@@ -26,6 +27,7 @@ class PromptSet {
 
 	/**
 	 * Modifies the PromptSet prototype with passthrough functions for the this.previous Promptlet instance of each PromptSet
+	 * @static
 	 * @param {PromptSet} instance The PromptSet being modified with the passthrough functions
 	 */
 	static attachPassthrough(instance) {
@@ -37,6 +39,20 @@ class PromptSet {
 				}
 			});
 		}
+	}
+
+	/**
+	 * Throws an error if the identifier is not a string or Promptlet instance
+	 * @static
+	 * @param identifier {string|Promptlet} Identifier to check
+	 * @return {string|Promptlet} Returns the identifier untouched if no error is encountered
+	 * @throws {TypeError} Thrown if identifier is not the right type
+	 */
+	static isIdentifier(identifier) {
+		if(typeof identifier !== "string" && !identifier instanceof Promptlet) {
+			throw new TypeError("Identifier must be a 'string' or 'Promptlet' instance");
+		}
+		return identifier;
 	}
 
 	/**
@@ -118,6 +134,28 @@ class PromptSet {
 	}
 
 	/**
+	 * Search the PromptSet for a specific Promptlet
+	 * @param {string|Promptlet} identifier The name of the Promptlet to search for. If a Promptlet is provided, the Promptlet.name property will be used
+	 * @return {Promptlet} The searched Promptlet if found
+	 * @throws {TypeError} Identifier is not a string or Promptlet
+	 * @throws {RangeError} Identifier is not found in the set
+	 */
+	searchSet(identifier) {
+		PromptSet.isIdentifier(identifier);
+
+		let found;
+		if(identifier instanceof Promptlet && this.PromptletSet.includes(identifier)) {
+			found = identifier;
+		} else if(typeof identifier === "string" && this.names.includes(identifier)) {
+			found = this.PromptletSet[this.names.indexOf(identifier)];
+		} else {
+			throw new RangeError("No matching Promptlet found in set");
+		}
+
+		return found;
+	}
+
+	/**
 	 * Creates a new Promptlet and immediately adds it to the PromptSet
 	 * @param {PromptletOptions|PromptletOptions[]} constructorArgs Argument passed to the Promptlet constructor. If this is an array, it will be looped through recursively from first to last
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
@@ -136,15 +174,17 @@ class PromptSet {
 	 * Adds already instantiated Promptlets to the PromptSet
 	 * @param {Promptlet} set Promptlet to add to this PromptSet
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
+	 * @throws {TypeError} Thrown if set is not a Promptlet instance
 	 */
 	add(set) {
 		if(!set instanceof Promptlet) throw new TypeError("PromptSet.add() only accepts 'Promptlet' instances");
+
 		if(this.names.includes(set.name)) {
 			console.warn("Overwriting a prompt with an identical name");
 			this.remove(set.name);
 		}
-
 		this.PromptletSet.push(set);
+
 		this.refreshPrevious(set);
 		return this;
 	}
@@ -183,32 +223,23 @@ class PromptSet {
 	}
 
 	/**
-	 * Search the PromptSet for a specific Promptlet
-	 * @param {string|Promptlet} identifier The name of the Promptlet to search for. If a Promptlet is provided, the Promptlet.name property will be used
-	 * @return {Promptlet} The searched Promptlet if found
-	 */
-	searchSet(identifier) {
-		if(identifier instanceof Promptlet) identifier = identifier.name;
-
-		if(typeof identifier !== "string") throw new Error("Identifier must be a 'string' or 'Promptlet' instance");
-		if(!this.names.includes(identifier)) throw new Error("Name not found in set");
-
-		return this.PromptletSet[this.names.indexOf(identifier)];
-	}
-
-	/**
 	 * Update or fetch the value of this.previous
 	 * @param {Promptlet|string} [newPrevious] New value to set as previous. Return value may vary depending on the type of this parameter
-	 * @return {Promptlet|undefined} Returns a Promptlet. If newPrevious is a Promptlet, it will be returned untouched. If it is as string, the Promptlet will be looked up automatically. If newPrevious is not provided, this.previous will be returned (Please see PromptSet.previous for details).
+	 * @return {Promptlet|undefined} Returns a Promptlet. If newPrevious is a Promptlet, it will be returned untouched. If it is as string, the Promptlet will be automatically looked up. If newPrevious is not provided, this.previous will be returned (See PromptSet.previous for details).
+	 * @throws {TypeError} newPrevious is not a string or Promptlet
 	 */
 	refreshPrevious(newPrevious) {
-		return newPrevious ? this.previous = this.searchSet(newPrevious) : this.previous;
+		if(newPrevious !== undefined) {
+			this.previous = this.searchSet(newPrevious);
+		}
+		return this.previous;
 	}
 
 	/**
-	 * Clear this.previous if it matches the targetPrevious
+	 * Clear this.previous if it matches the targetPrevious. Use when a Promptlet is being removed from the set
 	 * @param {Promptlet|string} targetPrevious Promptlet to assure is not equal to this.previous
 	 * @return {Promptlet} Returns targetPrevious as a Promptlet. If targetPrevious was a string, it will be looked up
+	 * @throws {TypeError} targetPrevious is not a string or Promptlet
 	 */
 	resetPrevious(targetPrevious) {
 		targetPrevious = this.searchSet(targetPrevious);
@@ -222,7 +253,7 @@ class PromptSet {
 	 * @param {boolean} [silent = false] When not set to true, the first unsatisfied prerequisite will be logged through the console
 	 * @return {boolean} Whether the chosenPromptlet has had all of its prerequisites met
 	 */
-	preSatisfied(chosenPromptlet, silent = false) {
+	prereqSatisfied(chosenPromptlet, silent = false) {
 		let preSatisfied = true;
 
 		for(const prerequisite of chosenPromptlet.prerequisites) {
@@ -272,11 +303,57 @@ class PromptSet {
 	}
 
 	/**
+	 * Creates a list prompt for the user to select what to answer from the PromptSet
+	 * @async
+	 * @return {Promptlet} Returns the selected Promptlet from the set. Does not take into account prerequisites or editable state [PromptSet.start]{@link PromptSet#start}
+	 */
+	async selectPromptlet() {
+		const choiceList = this.generateList();
+		if(choiceList.length === 1) return this.searchSet(choiceList[0].value);
+		const chosenPrompt = await inquirer({
+			type: "list",
+			name: "SELECTED_PROMPTLET",
+			default: this.defaultPosition,
+			message: "Choose a prompt to answer",
+			choices: choiceList
+		});
+
+		this.clearConsole();
+
+		this.defaultPosition = chosenPrompt["SELECTED_PROMPTLET"];
+
+		return this.defaultPosition === this.finishPrompt.name ? this.finishPrompt : this.searchSet(this.defaultPosition);
+	}
+
+	/**
+	 * Generates the list of prompts that are displayed for selection
+	 * @return {Array<{name: string, value: string}>}
+	 */
+	generateList() {
+		const list = this.PromptletSet
+			.map(promptlet => promptlet.generateListing(this.prereqSatisfied(promptlet, true)));
+
+		if(this.isSatisfied() && (this.finishMode === PromptSet.finishModes[0] || this.finishMode === PromptSet.finishModes[2])) {
+			this.finishPrompt.satisfied = false;
+			list.push(this.finishPrompt.generateListing(this.prereqSatisfied(this.finishPrompt, true)));
+		}
+
+		return list;
+	}
+
+	/**
+	 * Clears console if PromptSet.autoclear is set to a truthy value
+	 */
+	clearConsole() {
+		if(this.autoclear) console.clear();
+	}
+
+	/**
 	 * Returns whether to close the list (True after everything needed to be answered has been answered)
 	 * @async
 	 * @return {boolean} Whether to end execution
 	 */
-	async finished() {
+	async isFinished() {
 		if(!this.isSatisfied()) return false;
 
 		switch(this.finishMode) {
@@ -307,7 +384,7 @@ class PromptSet {
 
 		return new Promise(async resolve => {
 			let skipCheck = false;
-			while(skipCheck || !await this.finished()) {
+			while(skipCheck || !await this.isFinished()) {
 				skipCheck = false;
 				const chosenPromptlet = await this.selectPromptlet();
 
@@ -318,7 +395,7 @@ class PromptSet {
 					continue;
 				}
 
-				if(!this.preSatisfied(chosenPromptlet) || (chosenPromptlet === this.finishPrompt && this.finishMode === PromptSet.finishModes[0])) continue;
+				if(!this.prereqSatisfied(chosenPromptlet) || (chosenPromptlet === this.finishPrompt && this.finishMode === PromptSet.finishModes[0])) continue;
 
 				await chosenPromptlet.start(this.reduce());
 				this.clearConsole();
@@ -330,44 +407,6 @@ class PromptSet {
 	}
 
 	/**
-	 * Creates a list prompt for the user to select what to answer from the PromptSet
-	 * @async
-	 * @return {Promptlet} Returns the selected Promptlet from the set. Does not take into account prerequisites or editable state [PromptSet.start]{@link PromptSet#start}
-	 */
-	async selectPromptlet() {
-		const choiceList = this.generateList();
-		if(choiceList.length === 1) return this.searchSet(choiceList[0].value);
-		const chosenPrompt = await inquirer({
-			type: "list",
-			name: "SELECTED_PROMPTLET",
-			default: this.defaultPosition,
-			message: "Choose a prompt to answer",
-			choices: choiceList
-		});
-
-		this.clearConsole();
-
-		this.defaultPosition = chosenPrompt["SELECTED_PROMPTLET"];
-
-		return this.defaultPosition === this.finishPrompt.name ? this.finishPrompt : this.searchSet(this.defaultPosition);
-	}
-
-	/**
-	 * Generates the list of prompts that are displayed for selection
-	 * @return {Array<{name: string, value: string}>}
-	 */
-	generateList() {
-		const list = this.PromptletSet.map(promptlet => promptlet.generateListing(this.preSatisfied(promptlet, true)));
-
-		if(this.isSatisfied() && (this.finishMode === PromptSet.finishModes[0] || this.finishMode === PromptSet.finishModes[2])) {
-			this.finishPrompt.satisfied = false;
-			list.push(this.finishPrompt.generateListing(this.preSatisfied(this.finishPrompt, true)));
-		}
-
-		return list;
-	}
-
-	/**
 	 * Collects the values of every Promptlet into an Object.<br>
 	 * Note: Skips unanswered Promptlets
 	 * @return {Object} All results in "name: value" pairs
@@ -376,16 +415,9 @@ class PromptSet {
 		return this.PromptletSet
 			.filter(promptlet => promptlet.satisfied)
 			.reduce((acc, promptlet) => {
-			acc[promptlet.name] = promptlet.value;
-			return acc;
-		}, {});
-	}
-
-	/**
-	 * Clears console if PromptSet.autoclear is set to a truthy value
-	 */
-	clearConsole() {
-		if(this.autoclear) console.clear();
+				acc[promptlet.name] = promptlet.value;
+				return acc;
+			}, {});
 	}
 
 	/**
