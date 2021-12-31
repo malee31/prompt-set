@@ -64,42 +64,43 @@ class PromptSet {
 	 */
 	constructor() {
 		PromptSet.attachPassthrough(this);
+		this.clear();
 	}
 
 	/**
 	 * Where to place the cursor in the PromptSet's list of Promptlets when started<br>
 	 * Used to save the current position and return to it after the prompt is answered<br>
-	 * Can be the index on a list or the name property of a Promptlet
+	 * Can be set to the name property of a Promptlet (preferred by internal code) or its index in the set
 	 * @type {string|number}
 	 */
-	defaultPosition = 0;
+	defaultPosition;
 	/**
 	 * The complete set of Promptlets in the PromptSet. Stored in the order they are added in
 	 * @type {Array<Promptlet>}
 	 */
-	PromptletSet = [];
+	PromptletSet;
 	/**
 	 * Is true when all necessary Promptlets have been answered
 	 * @type {boolean}
 	 */
-	satisfied = false;
+	satisfied;
 	/**
 	 * Whether to automatically clear the console after each prompt<br>
 	 * Inquirer will usually do it automatically regardless but this is just in case
 	 * @type {boolean}
 	 */
-	autoclear = true;
+	autoclear;
 	/**
 	 * Most recently added or edited Promptlet. May be undefined if nothing has been added or if the added item was deleted
 	 * @type {Promptlet|undefined}
 	 */
-	previous = undefined;
+	previous;
 	/**
 	 * A string from PromptSet.finishModes. Determines when and how to ask the user if they are finished yet.<br>
 	 * See [PromptSet.finishModes]{@link PromptSet#finishModes} for more details
 	 * @type {string}
 	 */
-	finishMode = PromptSet.finishModes[2];
+	finishMode;
 
 	/**
 	 * Confirmation Promptlet that determines whether to end execution or continue for edits or optional prompts
@@ -124,13 +125,15 @@ class PromptSet {
 	}
 
 	/**
-	 * Empties the PromptSet for reuse
+	 * Empties and resets the PromptSet for reuse
 	 */
 	clear() {
 		this.PromptletSet = [];
 		this.defaultPosition = 0;
 		this.satisfied = false;
 		this.previous = undefined;
+		this.autoclear = true;
+		this.finishMode = PromptSet.finishModes[2];
 	}
 
 	/**
