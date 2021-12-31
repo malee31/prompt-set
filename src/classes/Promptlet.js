@@ -55,7 +55,7 @@ class Promptlet {
 	 * @alias Promptlet
 	 * @memberOf module:Prompt-Set.Classes
 	 * @param {PromptletOptions} info Object with all the prompt configurations passed to inquirer. See the 'inquirer' documentation on npm or Github for specific details. Name property required
-	 * @throws {TypeError} Will throw if info.name is not a string
+	 * @throws {TypeError} Will be thrown if info.name is not a string
 	 */
 	constructor(info) {
 		if(typeof info.name !== "string") throw new TypeError("Name Property Required (Type: string)");
@@ -63,7 +63,7 @@ class Promptlet {
 		 * Text displayed for this Promptlet on the PromptSet option list
 		 * @type {string}
 		 */
-		this.optionName = info.optionName;
+		this.optionName = info.optionName || "Select to Answer";
 		/**
 		 * Object containing all the data needed to start an inquirer prompt. Requires name property
 		 * @type {PromptletOptions|Object}
@@ -167,21 +167,18 @@ class Promptlet {
 
 	/**
 	 * Sets required property to true
+	 * @param {boolean} [toggle = true] Whether answering the Promptlet is required. Defaults to true if this function is called.
+	 * @return {Promptlet} Returns 'this' Promptlet for chaining
 	 */
-	required() {
-		this.info.required = true;
-	}
-
-	/**
-	 * Sets required property to false
-	 */
-	optional() {
-		this.info.required = false;
+	required(toggle = true) {
+		this.info.required = Boolean(toggle);
+		return this;
 	}
 
 	/**
 	 * Adds a prerequisite that must be completed before this Promptlet can run
 	 * @param {string|Promptlet} newPrerequisite The name property of the prerequisite Promptlet
+	 * @return {Promptlet} Returns 'this' Promptlet for chaining
 	 */
 	addPrerequisite(newPrerequisite) {
 		if(newPrerequisite instanceof Promptlet) newPrerequisite = newPrerequisite.name;
@@ -190,11 +187,13 @@ class Promptlet {
 			this.prerequisites.push(newPrerequisite);
 			this.prerequisites.sort();
 		}
+		return this;
 	}
 
 	/**
 	 * Removes a prerequisite that must be completed before this Promptlet can run
 	 * @param {string|Promptlet} removePrerequisite The name property of the prerequisite Promptlet
+	 * @return {Promptlet} Returns 'this' Promptlet for chaining
 	 */
 	removePrerequisite(removePrerequisite) {
 		if(removePrerequisite instanceof Promptlet) removePrerequisite = removePrerequisite.name;
@@ -202,11 +201,14 @@ class Promptlet {
 		if(this.prerequisites.includes(removePrerequisite)) {
 			this.prerequisites.splice(this.prerequisites.indexOf(removePrerequisite), 1);
 		}
+		return this;
 	}
 
 	/**
-	 * Add a filter to the prompt. Will not add identical duplicates
+	 * Add a filter to the prompt. Will not add identical duplicates (Wrap or recreate a function if multiple copies are desired)
 	 * @param {function|function[]} filter Filter function to add
+	 * @return {Promptlet} Returns 'this' Promptlet for chaining
+	 * @throws {TypeError} Thrown if a function is not provided
 	 */
 	addFilter(filter) {
 		if(Array.isArray(filter)) {
@@ -217,22 +219,26 @@ class Promptlet {
 		if(!this.filters.includes(filter)) {
 			this.filters.push(filter);
 		}
+		return this;
 	}
 
 	/**
 	 * Remove a filter from the prompt. (Requires exact same function instance to remove)
 	 * @param {function} filter Filter function to remove
+	 * @return {Promptlet} Returns 'this' Promptlet for chaining
 	 */
 	removeFilter(filter) {
-		if(typeof filter !== "function") throw new TypeError("Function required");
 		if(this.filters.includes(filter)) {
 			this.filters.splice(this.filters.indexOf(filter), 1);
 		}
+		return this;
 	}
 
 	/**
-	 * Add a validator to the prompt. Will not add identical duplicates
+	 * Add a validator to the prompt. Will not add identical duplicates (Wrap or recreate a function if multiple copies are desired)
 	 * @param {function|function[]} validator Validator function to add
+	 * @return {Promptlet} Returns 'this' Promptlet for chaining
+	 * @throws {TypeError} Thrown if a function is not provided
 	 */
 	addValidator(validator) {
 		if(Array.isArray(validator)) {
@@ -243,21 +249,25 @@ class Promptlet {
 		if(!this.validators.includes(validator)) {
 			this.validators.push(validator);
 		}
+		return this;
 	}
 
 	/**
 	 * Remove a validator from the prompt. (Requires exact same function instance to remove)
 	 * @param {function} validator Validator function to remove
+	 * @return {Promptlet} Returns 'this' Promptlet for chaining
 	 */
 	removeValidator(validator) {
-		if(typeof validator !== "function") throw new TypeError("Function required");
 		if(this.validators.includes(validator)) {
 			this.validators.splice(this.validators.indexOf(validator), 1);
 		}
+		return this;
 	}
 	/**
 	 * Add a post processor to the prompt. Will not add identical duplicates
 	 * @param {function|function[]} postProcessor Post processor function to add
+	 * @return {Promptlet} Returns 'this' Promptlet for chaining
+	 * @throws {TypeError} Thrown if a function is not provided
 	 */
 	addPostProcessor(postProcessor) {
 		if(Array.isArray(postProcessor)) {
@@ -268,28 +278,32 @@ class Promptlet {
 		if(!this.postProcessors.includes(postProcessor)) {
 			this.postProcessors.push(postProcessor);
 		}
+		return this;
 	}
 
 	/**
 	 * Remove a post processor from the prompt. (Requires exact same function instance to remove)
 	 * @param {function} postProcessor Post processor function to remove
+	 * @return {Promptlet} Returns 'this' Promptlet for chaining
 	 */
 	removePostProcessor(postProcessor) {
-		if(typeof postProcessor !== "function") throw new TypeError("Function required");
 		if(this.postProcessors.includes(postProcessor)) {
 			this.postProcessors.splice(this.postProcessors.indexOf(postProcessor), 1);
 		}
+		return this;
 	}
 
 	/**
 	 * Runs all the post processor functions with the current value
 	 * Modifies value property
 	 * @param {Object} [answers = {}] Object with all the previous Promptlet answers if run by a PromptSet
+	 * @return {Promptlet} Returns 'this' Promptlet for chaining
 	 */
 	async postProcess(answers = {}) {
 		for(const postProcessor of this.postProcessors) {
 			this.value = await postProcessor(this.value, answers);
 		}
+		return this;
 	}
 
 	/**
@@ -305,10 +319,10 @@ class Promptlet {
 	}
 
 	/**
-	 * Runs the Promptlet and marks Promptlet.satisfied to true. Updates Promptlet.value
+	 * Runs the Promptlet and sets satisfied property to true. Updates value property
 	 * @async
 	 * @param {Object} [answers = {}] Object with all the previous Promptlet answers if run by a PromptSet
-	 * @return {Promise<string>} Resolves to the value entered when execution of inquirer finishes
+	 * @return {string} Resolves to the answer value after inquirer finishes
 	 */
 	async start(answers = {}) {
 		this.value = (await Configurer.inquirer(this.info, answers))[this.name];
