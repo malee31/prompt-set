@@ -305,17 +305,6 @@ class Promptlet {
 	}
 
 	/**
-	 * Temporary alias for start()
-	 * (execute was renamed to start)
-	 * @deprecated
-	 * @async
-	 * @param {Object} [answers = {}] Object with all the previous Promptlet answers if run by a PromptSet
-	 * @return {Promise<string>} Resolves to the value entered when execution of inquirer finishes
-	 */
-	async execute(answers = {}) {
-		return await this.start(answers);
-	}
-	/**
 	 * Runs the Promptlet and marks Promptlet.satisfied to true. Updates Promptlet.value
 	 * @async
 	 * @param {Object} [answers = {}] Object with all the previous Promptlet answers if run by a PromptSet
