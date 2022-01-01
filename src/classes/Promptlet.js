@@ -213,7 +213,7 @@ class Promptlet {
 	addFilter(filter) {
 		if(Array.isArray(filter)) {
 			filter.forEach(fil => this.addFilter(fil));
-			return;
+			return this;
 		}
 		if(typeof filter !== "function") throw new TypeError("Function required");
 		if(!this.filters.includes(filter)) {
@@ -243,7 +243,7 @@ class Promptlet {
 	addValidator(validator) {
 		if(Array.isArray(validator)) {
 			validator.forEach(val => this.addValidator(val));
-			return;
+			return this;
 		}
 		if(typeof validator !== "function") throw new TypeError("Function required");
 		if(!this.validators.includes(validator)) {
@@ -272,7 +272,7 @@ class Promptlet {
 	addPostProcessor(postProcessor) {
 		if(Array.isArray(postProcessor)) {
 			postProcessor.forEach(val => this.addValidator(val));
-			return;
+			return this;
 		}
 		if(typeof postProcessor !== "function") throw new TypeError("Function required");
 		if(!this.postProcessors.includes(postProcessor)) {
