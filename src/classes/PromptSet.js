@@ -26,7 +26,8 @@ class PromptSet {
 		});
 
 	/**
-	 * Modifies the PromptSet prototype with passthrough functions for the this.previous Promptlet instance of each PromptSet
+	 * Modifies the PromptSet prototype with passthrough functions for the this.previous Promptlet instance of each PromptSet.<br>
+	 * All passthrough functions return this PromptSet for chaining rather than the return value of the Promptlet
 	 * @static
 	 * @param {PromptSet} instance The PromptSet being modified with the passthrough functions
 	 */

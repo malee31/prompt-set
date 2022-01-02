@@ -111,18 +111,15 @@ class Promptlet {
 		 * @type {function[]}
 		 */
 		this.postProcessors = [];
-		/**
-		 * Whether to automatically use the built-in trim filter
-		 * @type {boolean}
-		 */
-		this.autoTrim = this.info.autoTrim;
-		/**
-		 * Whether to automatically use the built-in disallow blank validator
-		 * @type {boolean}
-		 */
-		this.allowBlank = this.info.allowBlank;
-		this.addFilter(this.info.filter);
-		this.addValidator(this.info.validate);
+
+		this
+			.autoTrim(this.info.autoTrim)
+			.allowBlank(this.info.allowBlank);
+
+		this
+			.addFilter(this.info.filter)
+			.addValidator(this.info.validate);
+
 		this.info.filter = async(ans, answers) => {
 			let filteredAns = ans;
 			for(const filter of this.filters) {
@@ -140,21 +137,25 @@ class Promptlet {
 	}
 
 	/**
-	 * Sets whether or not to automatically trim answers before validating. Defaults to true
-	 * @param {boolean} [allow = false] Determines whether to include the Filters.autoTrim function as a filter
+	 * Whether to automatically use the built-in trim filter. Defaults to true if called without arguments
+	 * @param {boolean} [allow = true] Determines whether to include the Filters.autoTrim function as a filter
+	 * @return {Promptlet} Returns 'this' Promptlet for chaining
 	 */
-	set autoTrim(allow) {
+	autoTrim(allow = true) {
 		if(allow) this.addFilter(Filters.autoTrim);
 		else this.removeFilter(Filters.autoTrim);
+		return this;
 	}
 
 	/**
-	 * Sets whether or not blank answers are allowed. Defaults to true
-	 * @param {boolean} [allow = false] Determines whether to include the Validators.disableBlank function as a validator
+	 * Whether to allow blank answers (responses). Defaults to true if called without arguments
+	 * @param {boolean} [allow = true] Determines whether to include the Validators.disableBlank function as a validator
+	 * @return {Promptlet} Returns 'this' Promptlet for chaining
 	 */
-	set allowBlank(allow) {
+	allowBlank(allow = true) {
 		if(allow) this.removeValidator(Validators.disableBlank);
 		else this.addValidator(Validators.disableBlank);
+		return this;
 	}
 
 	/**
@@ -166,7 +167,7 @@ class Promptlet {
 	}
 
 	/**
-	 * Sets required property to true
+	 * Whether the current Promptlet instance must be run before the parent PromptSet can terminate. Defaults to true if called without arguments
 	 * @param {boolean} [toggle = true] Whether answering the Promptlet is required. Defaults to true if this function is called.
 	 * @return {Promptlet} Returns 'this' Promptlet for chaining
 	 */
