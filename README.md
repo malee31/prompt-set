@@ -13,6 +13,7 @@ It is also served on the `docs` branch of this repository or the GitHub Pages si
 
 # Promptlet info object structure
 ##### Excluding Inquirer's Question object properties
+You can safely assume that any property of the Inquirer.js question object will work the same way except for filter and validate (They have been wrapped so the code will still work either way).
 ```json
 {
 	"optionName": "string",
@@ -20,9 +21,9 @@ It is also served on the `docs` branch of this repository or the GitHub Pages si
 	"message": "string",
 	"type": "string (See inquirer documentation)",
 	"default": "string|number|boolean|function",
-	"prerequisites": ["string (Array of Prerequisite Promptlet names. Will not be validated)"],
+	"prerequisites": ["string (Array of Prerequisite Promptlet names. Will NOT be validated)"],
 	"validate": ["Functions/Validators.js exports. Overrides Inquirer's validate property"],
-	"filter": ["Functions/Filters.js exports. Overrides Inquirer's validate property"],
+	"filter": ["Functions/Filters.js exports. Overrides Inquirer's filter property"],
 	"allowBlank": "boolean",
 	"autoTrim": "boolean",
 	"value": "string",
