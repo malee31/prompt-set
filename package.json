@@ -1,6 +1,6 @@
 {
   "name": "prompt-set",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Create quick setup prompts for users that can be gone through in any order of their choosing as long as some prerequisites are met",
   "main": "index.js",
   "scripts": {
