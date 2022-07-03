@@ -26,7 +26,7 @@ class PromptSet {
 		});
 
 	/**
-	 * Modifies the PromptSet prototype with passthrough functions for the this.previous Promptlet instance of each PromptSet.<br>
+	 * Modifies the PromptSet prototype with passthrough functions for the this.recent Promptlet instance of each PromptSet.<br>
 	 * All passthrough functions return this PromptSet for chaining rather than the return value of the Promptlet
 	 * @static
 	 * @param {PromptSet} instance The PromptSet being modified with the passthrough functions
@@ -35,7 +35,7 @@ class PromptSet {
 		for(const prop of PromptSet.passthroughProperties) {
 			Object.defineProperty(instance, prop, {
 				value: (...args) => {
-					instance.searchSet(instance.refreshPrevious())[prop](...args);
+					instance.searchSet(instance.refreshRecent())[prop](...args);
 					return instance;
 				}
 			});
@@ -92,10 +92,10 @@ class PromptSet {
 	 */
 	autoclear;
 	/**
-	 * Most recently added or edited Promptlet. May be undefined if nothing has been added or if the added item was deleted
+	 * Most recently added or edited Promptlet. Will be undefined in an empty set or if the most recent item was removed
 	 * @type {Promptlet|undefined}
 	 */
-	previous;
+	recent;
 	/**
 	 * A string from PromptSet.finishModes. Determines when and how to ask the user if they are finished yet.<br>
 	 * See [PromptSet.finishModes]{@link PromptSet#finishModes} for more details
@@ -132,7 +132,7 @@ class PromptSet {
 		this.PromptletSet = [];
 		this.defaultPosition = 0;
 		this.satisfied = false;
-		this.previous = undefined;
+		this.recent = undefined;
 		this.autoclear = true;
 		this.finishMode = PromptSet.finishModes[2];
 	}
@@ -189,7 +189,7 @@ class PromptSet {
 		}
 		this.PromptletSet.push(set);
 
-		this.refreshPrevious(set);
+		this.refreshRecent(set);
 		return this;
 	}
 
@@ -200,55 +200,55 @@ class PromptSet {
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
 	 */
 	remove(identifier) {
-		this.PromptletSet.splice(this.names.indexOf(this.resetPrevious(identifier).name), 1);
+		this.PromptletSet.splice(this.names.indexOf(this.resetRecent(identifier).name), 1);
 		return this;
 	}
 
 	/**
 	 * Adds a prerequisite Promptlet that must be completed before this one
 	 * @param {string|Promptlet} prerequisiteIdentifier Identifier for a prerequisite Promptlet (Promptlet must be in set)
-	 * @param {string|Promptlet} [addToIdentifier] Identifier for a Promptlet to add prerequisite to (Promptlet must be in set). Will use PromptSet.previous if not provided
+	 * @param {string|Promptlet} [addToIdentifier] Identifier for a Promptlet to add prerequisite to (Promptlet must be in set). Will use PromptSet.recent if not provided
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
 	 */
 	addPrerequisite(prerequisiteIdentifier, addToIdentifier) {
-		this.refreshPrevious(addToIdentifier).addPrerequisite(prerequisiteIdentifier);
+		this.refreshRecent(addToIdentifier).addPrerequisite(prerequisiteIdentifier);
 		return this;
 	}
 
 	/**
 	 * Remove a prerequisite from a specific Promptlet
 	 * @param {string|Promptlet} removeIdentifier Identifier for a prerequisite Promptlet (Promptlet must be in set)
-	 * @param {string|Promptlet} [removeFromIdentifier] Identifier for a Promptlet to remove prerequisite from (Promptlet must be in set). Will use PromptSet.previous if not provided
+	 * @param {string|Promptlet} [removeFromIdentifier] Identifier for a Promptlet to remove prerequisite from (Promptlet must be in set). Will use PromptSet.recent if not provided
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
 	 */
 	removePrerequisite(removeIdentifier, removeFromIdentifier) {
-		this.refreshPrevious(removeFromIdentifier).removePrerequisite(removeIdentifier);
+		this.refreshRecent(removeFromIdentifier).removePrerequisite(removeIdentifier);
 		return this;
 	}
 
 	/**
-	 * Update or fetch the value of this.previous
-	 * @param {Promptlet|string} [newPrevious] New value to set as previous. Return value may vary depending on the type of this parameter
-	 * @return {Promptlet|undefined} Returns a Promptlet. If newPrevious is a Promptlet, it will be returned untouched. If it is as string, the Promptlet will be automatically looked up. If newPrevious is not provided, this.previous will be returned (See PromptSet.previous for details).
-	 * @throws {TypeError} newPrevious is not a string or Promptlet
+	 * Update or fetch the value of this.recent
+	 * @param {Promptlet|string} [newRecent] New value to set as recent. Return value may vary depending on the type of this parameter
+	 * @return {Promptlet|undefined} Returns a Promptlet. If newRecent is a Promptlet, it will be returned untouched. If it is as string, the Promptlet will be automatically looked up. If newRecent is not provided, this.recent will be returned (See PromptSet.recent for details).
+	 * @throws {TypeError} newRecent is not a string or Promptlet
 	 */
-	refreshPrevious(newPrevious) {
-		if(newPrevious !== undefined) {
-			this.previous = this.searchSet(newPrevious);
+	refreshRecent(newRecent) {
+		if(newRecent !== undefined) {
+			this.recent = this.searchSet(newRecent);
 		}
-		return this.previous;
+		return this.recent;
 	}
 
 	/**
-	 * Clear this.previous if it matches the targetPrevious. Use when a Promptlet is being removed from the set
-	 * @param {Promptlet|string} targetPrevious Promptlet to assure is not equal to this.previous
-	 * @return {Promptlet} Returns targetPrevious as a Promptlet. If targetPrevious was a string, it will be looked up
-	 * @throws {TypeError} targetPrevious is not a string or Promptlet
+	 * Clear this.recent if it matches the targetRecent. Use when a Promptlet is being removed from the set
+	 * @param {Promptlet|string} targetRecent Promptlet to assure is not equal to this.recent
+	 * @return {Promptlet} Returns targetRecent as a Promptlet. If targetRecent was a string, it will be looked up
+	 * @throws {TypeError} targetRecent is not a string or Promptlet
 	 */
-	resetPrevious(targetPrevious) {
-		targetPrevious = this.searchSet(targetPrevious);
-		if(this.previous === targetPrevious) this.previous = undefined;
-		return targetPrevious;
+	resetRecent(targetRecent) {
+		targetRecent = this.searchSet(targetRecent);
+		if(this.recent === targetRecent) this.recent = undefined;
+		return targetRecent;
 	}
 
 	/**

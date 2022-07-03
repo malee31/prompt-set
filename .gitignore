@@ -3,6 +3,7 @@ node_modules/
 
 # IDE Settings
 .idea/
+.vscode/
 
 # Config Files
 *.iml
