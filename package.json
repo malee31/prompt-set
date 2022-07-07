@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "edit": "node index.js true",
     "test": "node test.js",
     "docs": "jsdoc -c jsdoc.json",
     "servedocs": "npx http-server -c-1 ./docs"

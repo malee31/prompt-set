@@ -1,4 +1,4 @@
-const PromptSet = require(".").PromptSet;
+const {PromptSet, PromptSetClass} = require(".");
 
 const set = PromptSet()
 	.addNew({
@@ -31,7 +31,7 @@ const set = PromptSet()
 	.addPrerequisite("Opt 2")
 	.addPrerequisite("Opt 1")
 	.removePrerequisite("Opt 1")
-	.setFinishMode(2);
+	.setFinishMode(PromptSetClass.finishModes.choice);
 
 debugger;
 

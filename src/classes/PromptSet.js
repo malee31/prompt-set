@@ -3,16 +3,22 @@ const Promptlet = require("./Promptlet.js");
 
 class PromptSet {
 	/**
-	 * Valid finishing modes for the PromptSet<br>
+	 * Valid finishing modes for the PromptSet as an Enum-like object<br>
 	 * Aggressive: Combination of 'confirm' and 'choice'<br>
 	 * Confirm: Confirm after all prerequisites are met and every edit after that as well. Identical to auto if nothing is editable<br>
 	 * Choice: Add an option to close the list at the end after all prerequisites are met<br>
 	 * Auto: Automatically stops execution and closes the list after prerequisites are met
 	 * @static
 	 * @readonly
-	 * @type {string[]}
+	 * @type {{aggressive: string, confirm: string, choice: string, auto: string}}
 	 */
-	static finishModes = ["aggressive", "confirm", "choice", "auto"];
+	static finishModes = {
+		aggressive: "aggressive",
+		confirm: "confirm",
+		choice: "choice",
+		auto: "auto"
+	};
+
 	/**
 	 * All the method property names of the Promptlet prototype
 	 * @static
@@ -96,6 +102,7 @@ class PromptSet {
 	 * @type {Promptlet|undefined}
 	 */
 	recent;
+
 	/**
 	 * A string from PromptSet.finishModes. Determines when and how to ask the user if they are finished yet.<br>
 	 * See [PromptSet.finishModes]{@link PromptSet#finishModes} for more details
@@ -134,7 +141,7 @@ class PromptSet {
 		this.satisfied = false;
 		this.recent = undefined;
 		this.autoclear = true;
-		this.finishMode = PromptSet.finishModes[2];
+		this.finishMode = PromptSet.finishModes.choice;
 	}
 
 	/**
@@ -288,21 +295,15 @@ class PromptSet {
 
 	/**
 	 * Toggle or set whether or not to confirm that the user is done before terminating the PromptSet
-	 * @param {string|number} [mode = PromptSet.finishModes[3]] The finish mode to use. See [PromptSet#finishModes]{@link PromptSet.finishModes} for details
+	 * @param {string} [mode = PromptSet.finishModes.choice] The finish mode to use from [PromptSet#finishModes]{@link PromptSet.finishModes}
 	 * @return {PromptSet} Returns 'this' PromptSet for chaining
-	 * @throws {RangeError} Index out of bounds for finish mode array
-	 * @throws {TypeError} Throws if mode is not a string, a number, or a number string
+	 * @throws {RangeError} Thrown if the finish mode is not from [PromptSet#finishModes]{@link PromptSet.finishModes}
 	 */
 	setFinishMode(mode) {
-		if(typeof mode === "number" || !isNaN(Number(mode))) {
-			mode = Math.trunc(Number(mode));
-			if(mode < 0 || mode >= PromptSet.finishModes.length) throw new RangeError(`Index Out of Bounds: ${mode}\nExpected 0 to ${PromptSet.finishModes.length}`);
-			this.finishMode = PromptSet.finishModes[mode];
-		} else if(typeof mode === "string") {
-			mode = mode.trim().toLowerCase();
-			this.finishMode = PromptSet.finishModes.includes(mode) ? mode : PromptSet.finishModes[3];
-		} else throw new TypeError(`String or Number expected. Received: <Type: ${typeof mode}> (${mode})`);
-
+		if(!PromptSet.finishModes[mode]) {
+			throw new RangeError("Finish mode not found in PromptSet.finishModes. Select a valid finish mode from the set");
+		}
+		this.finishMode = PromptSet.finishModes[mode];
 		return this;
 	}
 
@@ -313,6 +314,7 @@ class PromptSet {
 	 */
 	async selectPromptlet() {
 		const choiceList = this.generateList();
+		// Automatically return first item if no other options are available
 		if(choiceList.length === 1) return this.searchSet(choiceList[0].value);
 		const chosenPrompt = await inquirer({
 			type: "list",
@@ -337,7 +339,7 @@ class PromptSet {
 		const list = this.PromptletSet
 			.map(promptlet => promptlet.generateListing(this.prereqSatisfied(promptlet, true)));
 
-		if(this.isSatisfied() && (this.finishMode === PromptSet.finishModes[0] || this.finishMode === PromptSet.finishModes[2])) {
+		if(this.isSatisfied() && (this.finishMode === PromptSet.finishModes.aggressive || this.finishMode === PromptSet.finishModes.choice)) {
 			this.finishPrompt.satisfied = false;
 			list.push(this.finishPrompt.generateListing(this.prereqSatisfied(this.finishPrompt, true)));
 		}
@@ -361,8 +363,8 @@ class PromptSet {
 		if(!this.isSatisfied()) return false;
 
 		switch(this.finishMode) {
-			case PromptSet.finishModes[0]:
-			case PromptSet.finishModes[1]:
+			case PromptSet.finishModes.aggressive:
+			case PromptSet.finishModes.confirm:
 				let finish = this.PromptletSet.every(promptlet => {
 					return promptlet.satisfied && !promptlet.editable;
 				});
@@ -372,9 +374,9 @@ class PromptSet {
 				this.clearConsole();
 				return finish;
 
-			case PromptSet.finishModes[2]:
+			case PromptSet.finishModes.choice:
 				return this.finishPrompt.value;
-			case PromptSet.finishModes[3]:
+			case PromptSet.finishModes.auto:
 				return true;
 		}
 	}
@@ -399,7 +401,7 @@ class PromptSet {
 					continue;
 				}
 
-				if(!this.prereqSatisfied(chosenPromptlet) || (chosenPromptlet === this.finishPrompt && this.finishMode === PromptSet.finishModes[0])) continue;
+				if(!this.prereqSatisfied(chosenPromptlet) || (chosenPromptlet === this.finishPrompt && this.finishMode === PromptSet.finishModes.aggressive)) continue;
 
 				await chosenPromptlet.start(this.reduce());
 				this.clearConsole();

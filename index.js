@@ -52,6 +52,8 @@ const allExports = {
 	 */
 	PromptSet: () => new PromptSet(),
 
+	PromptSetClass: PromptSet,
+
 	/**
 	 * Creates and returns a new Promptlet
 	 * @param {PromptletOptions} options Arguments for the Promptlet constructor
