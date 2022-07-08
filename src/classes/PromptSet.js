@@ -41,7 +41,7 @@ class PromptSet {
 	 * @memberOf module:Prompt-Set.Classes
 	 */
 	constructor() {
-		this.clear();
+		this.reset();
 	}
 
 	/**
@@ -105,7 +105,7 @@ class PromptSet {
 	/**
 	 * Empties and resets the PromptSet for reuse
 	 */
-	clear() {
+	 reset() {
 		this.PromptletSet = [];
 		this.defaultPosition = 0;
 		this.satisfied = false;
