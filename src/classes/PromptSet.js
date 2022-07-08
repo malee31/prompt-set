@@ -32,23 +32,6 @@ class PromptSet {
 		});
 
 	/**
-	 * Modifies the PromptSet prototype with passthrough functions for the this.recent Promptlet instance of each PromptSet.<br>
-	 * All passthrough functions return this PromptSet for chaining rather than the return value of the Promptlet
-	 * @static
-	 * @param {PromptSet} instance The PromptSet being modified with the passthrough functions
-	 */
-	static attachPassthrough(instance) {
-		for(const prop of PromptSet.passthroughProperties) {
-			Object.defineProperty(instance, prop, {
-				value: (...args) => {
-					instance.searchSet(instance.refreshRecent())[prop](...args);
-					return instance;
-				}
-			});
-		}
-	}
-
-	/**
 	 * Throws an error if the identifier is not a string or Promptlet instance
 	 * @static
 	 * @param identifier {string|Promptlet} Identifier to check
@@ -70,7 +53,6 @@ class PromptSet {
 	 * @memberOf module:Prompt-Set.Classes
 	 */
 	constructor() {
-		PromptSet.attachPassthrough(this);
 		this.clear();
 	}
 
