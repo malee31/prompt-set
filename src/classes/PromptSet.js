@@ -12,24 +12,12 @@ class PromptSet {
 	 * @readonly
 	 * @type {{aggressive: string, confirm: string, choice: string, auto: string}}
 	 */
-	static finishModes = {
+	static finishModes = Object.freeze({
 		aggressive: "aggressive",
 		confirm: "confirm",
 		choice: "choice",
 		auto: "auto"
-	};
-
-	/**
-	 * All the method property names of the Promptlet prototype
-	 * @static
-	 * @type {string[]}
-	 */
-	static passthroughProperties = Object.getOwnPropertyNames(Promptlet.prototype)
-		.filter(prop => {
-			const details = Object.getOwnPropertyDescriptor(Promptlet.prototype, prop);
-			// Allows all Promptlet member functions to be attached to the PromptSet as long as it is not overridden by a function in PromptSet
-			return !Object.getOwnPropertyNames(PromptSet.prototype).includes(prop) && !details.get && !details.set && typeof details.value === "function";
-		});
+	});
 
 	/**
 	 * Throws an error if the identifier is not a string or Promptlet instance
