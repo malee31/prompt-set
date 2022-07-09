@@ -56,18 +56,18 @@ const allExports = {
 	Validators,
 
 	/**
-	 * The PromptSet class
-	 * @class
+	 * The PromptSet class<br>
+	 * {@link PromptSet See More Details}
 	 * @memberOf module:Prompt-Set
 	 */
-	PromptSet: PromptSet,
+	PromptSet,
 
 	/**
-	 * The Promptlet class
-	 * @class
+	 * The Promptlet class<br>
+	 * {@link Promptlet See More Details}
 	 * @memberOf module:Prompt-Set
 	 */
-	Promptlet: Promptlet,
+	Promptlet,
 };
 
 module.exports = allExports;
