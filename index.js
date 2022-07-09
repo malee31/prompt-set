@@ -11,17 +11,27 @@ const Validators = require("./src/Validators.js");
 
 const allExports = {
 	/**
-	 * Use this if you would like to directly access and modify the classes used by Prompt-Set<br>
-	 * If you only intend to create new instances, the exported functions will do.
+	 * Simply creates and returns a new PromptSet
+	 * @return {PromptSet} New PromptSet instance
 	 * @memberOf module:Prompt-Set
-	 * @type {Object}
-	 * @property {function} PromptSet {@link PromptSet See More Details}
-	 * @property {function} Promptlet {@link Promptlet See More Details}
 	 */
-	Classes: {
-		PromptSet,
-		Promptlet
-	},
+	instance: () => new PromptSet(),
+
+	/**
+	 * Simply creates and returns a new Promptlet
+	 * @param {PromptletOptions} options Arguments for the Promptlet constructor
+	 * @return {Promptlet} New Promptlet instance
+	 * @memberOf module:Prompt-Set
+	 */
+	 entry: (options) => new Promptlet(options),
+
+
+	/**
+	 * PromptSet's finish modes (Enum-like). See PromptSet.finishModes for more information
+	 * @type {Object}
+	 */
+	finishModes: PromptSet.finishModes,
+
 	/**
 	 * Object responsible for all the basic configurations for prompts<br>
 	 * {@link module:Prompt-Set.Configurer See More Details}
@@ -46,21 +56,18 @@ const allExports = {
 	Validators,
 
 	/**
-	 * Creates and returns a new PromptSet
-	 * @return {PromptSet}
+	 * The PromptSet class
+	 * @class
 	 * @memberOf module:Prompt-Set
 	 */
-	PromptSet: () => new PromptSet(),
-
-	PromptSetClass: PromptSet,
+	PromptSet: PromptSet,
 
 	/**
-	 * Creates and returns a new Promptlet
-	 * @param {PromptletOptions} options Arguments for the Promptlet constructor
-	 * @return {Promptlet}
+	 * The Promptlet class
+	 * @class
 	 * @memberOf module:Prompt-Set
 	 */
-	Promptlet: (options) => new Promptlet(options)
+	Promptlet: Promptlet,
 };
 
 module.exports = allExports;

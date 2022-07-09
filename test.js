@@ -1,7 +1,9 @@
-const {PromptSet, PromptSetClass} = require(".");
+const PromptSet = require(".");
 
-const set = PromptSet()
-	.addNew({
+// Create a new PromptSet instance. Equivalent to (new PromptSet.PromptSet())
+const set = PromptSet.instance();
+
+set.addNew({
 		optionName: "First Option",
 		name: "Opt 1",
 		message: "Prompted Once",
@@ -20,17 +22,15 @@ const set = PromptSet()
 			name: "Opt 4",
 			message: "Array added"
 		},
-		{
+		PromptSet.entry({
 			optionName: "Fifth Option",
 			name: "Opt 5",
 			message: "Array Added Part 2",
-			prerequisites: ["Opt 2", "Opt 3"],
-			required: true
-		}
-	])
-	.setFinishMode(PromptSetClass.finishModes.choice);
-
-debugger;
+		})
+			.required(true)
+			.addPrerequisite("Opt 2")
+			.addPrerequisite("Opt 3")
+	]).setFinishMode(PromptSet.finishModes.choice);
 
 set.start().then(console.log).then(() => {
 	console.log(`PromptSet.toString(): ${set}`);

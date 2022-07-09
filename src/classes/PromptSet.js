@@ -20,21 +20,7 @@ class PromptSet {
 	});
 
 	/**
-	 * Throws an error if the identifier is not a string or Promptlet instance
-	 * @static
-	 * @param identifier {string|Promptlet} Identifier to check
-	 * @return {string|Promptlet} Returns the identifier untouched if no error is encountered
-	 * @throws {TypeError} Thrown if identifier is not the right type
-	 */
-	static isIdentifier(identifier) {
-		if(typeof identifier !== "string" && !identifier instanceof Promptlet) {
-			throw new TypeError("Identifier must be a 'string' or 'Promptlet' instance");
-		}
-		return identifier;
-	}
-
-	/**
-	 * Instantiates a new PromptSet
+	 * Instantiates a new empty PromptSet
 	 * @class
 	 * @classdesc Class that manages and contains instances of Promptlets
 	 * @alias PromptSet
@@ -105,7 +91,7 @@ class PromptSet {
 	/**
 	 * Empties and resets the PromptSet for reuse
 	 */
-	 reset() {
+	reset() {
 		this.PromptletSet = [];
 		this.defaultPosition = 0;
 		this.satisfied = false;
@@ -118,11 +104,13 @@ class PromptSet {
 	 * Search the PromptSet for a specific Promptlet
 	 * @param {string|Promptlet} identifier The name of the Promptlet to search for. If a Promptlet is provided, the Promptlet.name property will be used
 	 * @return {Promptlet} The searched Promptlet if found
-	 * @throws {TypeError} Identifier is not a string or Promptlet
+	 * @throws {TypeError} Thrown if the identifier is not a string or Promptlet
 	 * @throws {RangeError} Identifier is not found in the set
 	 */
 	searchSet(identifier) {
-		PromptSet.isIdentifier(identifier);
+		if(typeof identifier !== "string" && !(identifier instanceof Promptlet)) {
+			throw new TypeError("Identifier must be a 'string' or 'Promptlet' instance");
+		}
 
 		let found;
 		if(identifier instanceof Promptlet && this.PromptletSet.includes(identifier)) {
@@ -147,7 +135,9 @@ class PromptSet {
 			return this;
 		}
 
-		this.add(new Promptlet(constructorArgs));
+		const addValue = constructorArgs instanceof Promptlet ? constructorArgs : new Promptlet(constructorArgs);
+		this.add(addValue);
+		
 		return this;
 	}
 
