@@ -313,8 +313,19 @@ class Promptlet {
 	 * @return {{name: string, value: string}} An entry for the PromptSet.selectPromptlet() function's prompt
 	 */
 	generateListing(preSatisfied) {
+		let prefix = "✖️";
+		if(this.satisfied) {
+			if(this.editable) {
+				prefix = "✎";
+			} else {
+				prefix = "✔";
+			}
+		} else if(preSatisfied) {
+			prefix = "○";
+		}
+
 		return {
-			name: `${this.satisfied ? (this.editable ? "✎" : "✔") : (preSatisfied ? "○" : "⛝")} ${this.optionName}`,
+			name: `${prefix} ${this.optionName}`,
 			value: this.name
 		};
 	}
@@ -337,7 +348,7 @@ class Promptlet {
 	 * @return {string} String detailing the current state of the Promptlet
 	 */
 	toString() {
-		return `Promptlet <${this.name}>: ${this.info.type} | [${this.optionName}]\nMessage: ${this.info.message}\nStatus: [${this.satisfied ? "✔" : "⛝"} ${this.editable ? "✎" : ""}]\nValue: ${this.value}\nPrerequisites: ${this.prerequisites.join(" & ")}`;
+		return `Promptlet <${this.name}>: ${this.info.type} | [${this.optionName}]\nMessage: ${this.info.message}\nStatus: [${this.satisfied ? "✔" : "✖️"} ${this.editable ? "✎" : ""}]\nValue: ${this.value}\nPrerequisites: ${this.prerequisites.join(" & ")}`;
 	}
 }
 
