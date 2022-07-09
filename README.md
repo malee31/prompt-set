@@ -1,19 +1,19 @@
 # Prompt Set
-Create a list of prompts for a user to answer in any order!<br>
-Allows you to lock specific prompts so that they can only be answered after a different one and allows editing and validating answers.<br>
+Create a list of prompts for a user to answer in any order!  
+Allows you to lock specific prompts that require other prompts to be answered first and allows users to edit their responses and see their answers validated.  
 Helpful for setting up a list of environment variables or prompting and validating credentials from a user.
 
-# Installation
-To install `prompt-set`, simply clone this repository and run `npm install`.<br>
-Optionally, test to make sure the code works by running `npm run test` afterwards.
+## Installation
+To install `prompt-set`, run `npm install prompt-set` or clone this repository and run `npm install`.
 
-# Documentation
-Documentation can be generated after installation with the command `npm run docs` and viewed on localhost by running `npm run servedocs`<br>
+## Documentation
+Documentation can be generated after installation with the command `npm run docs` and viewed on localhost by running `npm run servedocs`  
 It is also served on the `docs` branch of this repository or the GitHub Pages site.
 
-# Promptlet info object structure
+## Promptlet info object structure
 ##### Excluding Inquirer's Question object properties
-You can safely assume that any property of the Inquirer.js question object will work the same way except for filter and validate (They have been wrapped so the code will still work either way).
+You can safely assume that any property of the Inquirer.js question object will work the same way except for filter and validate (They have been wrapped so the code will still work either way).  
+For a sample program, look at the `test.js` file
 ```json
 {
 	"optionName": "string",

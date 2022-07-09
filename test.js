@@ -4,28 +4,28 @@ const PromptSet = require(".");
 const set = PromptSet.instance();
 
 set.addNew({
-		optionName: "First Option",
+		optionName: "First Option (Editable)",
 		name: "Opt 1",
-		message: "Prompted Once",
+		message: "This is the first option (Editable)",
 		editable: true
 	}).addNew({
 		optionName: "Second Option",
 		name: "Opt 2",
-		message: "Prompted Twice"
+		message: "This is the second option"
 	}).addNew({
 		optionName: "Third Option",
 		name: "Opt 3",
-		message: "Prompted Thrice"
+		message: "This is the third option"
 	}).addNew([
 		{
 			optionName: "Fourth Option",
 			name: "Opt 4",
-			message: "Array added"
+			message: "This is the fourth option"
 		},
 		PromptSet.entry({
-			optionName: "Fifth Option",
+			optionName: "Fifth Option (Required to finish and also requires #2 and #3 to be completed first)",
 			name: "Opt 5",
-			message: "Array Added Part 2",
+			message: "This is the fifth option (Requires #2 and #3)",
 		})
 			.required(true)
 			.addPrerequisite("Opt 2")
